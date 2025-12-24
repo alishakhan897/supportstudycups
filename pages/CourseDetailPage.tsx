@@ -73,7 +73,8 @@ const CourseDetailPage = ({ courseIds, courseKey, allColleges, setView , onOpenA
 
 
             {/* HEADER */}
-            <div className="relative bg-[--primary-dark] mt-5">
+            <div className="relative bg-[var(--primary-dark)]
+ mt-5">
                 <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-white">
 
                     <button
@@ -475,7 +476,7 @@ const CourseDetailPage = ({ courseIds, courseKey, allColleges, setView , onOpenA
                         </p>
 
                         <div className="mt-4 flex gap-3">
-                            <a className="cursor-pointer inline-flex items-center justify-center rounded-md bg-[--primary-medium] p-2 text-white font-semibold text-[10px] " 
+                            <a className="cursor-pointer inline-flex items-center justify-center rounded-md bg-[var(--primary-dark)] p-2 text-white font-semibold text-[10px] " 
                             onClick={onOpenApplyNow}>
                                 Apply Now
                             </a>

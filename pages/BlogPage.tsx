@@ -187,22 +187,54 @@ const BlogPage: React.FC = () => {
         {loading ? (
           <p>Loading articles...</p>
         ) : (
-          <div className="grid md:grid-cols-3 gap-6">
-            {articles.map(article => (
-              <div key={article._id} className="bg-white rounded-xl shadow hover:shadow-md">
-                <img src={article.imageUrl} className="h-44 w-full object-cover" />
-                <div className="p-5">
-                  <h4 className="font-semibold text-slate-900">{article.title}</h4>
-                  <p className="text-sm text-slate-600 mt-2 line-clamp-3">
-                    {article.excerpt}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-4">
-                    {article.author} · {new Date(article.publishedAt).toDateString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+  {articles.map(article => (
+    <article
+      key={article._id}
+      className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+    >
+      {/* IMAGE */}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={article.imageUrl || "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f"}
+          alt={article.title}
+          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+
+        {/* CATEGORY BADGE */}
+        {article.category && (
+          <span className="absolute top-4 left-4 bg-[#0A225A] text-white text-xs font-semibold px-3 py-1 rounded-full">
+            {article.category}
+          </span>
+        )}
+      </div>
+
+      {/* CONTENT */}
+      <div className="p-6 flex flex-col h-full">
+        <h4 className="text-lg font-bold text-slate-900 leading-snug line-clamp-2">
+          {article.title}
+        </h4>
+
+        <p className="text-sm text-slate-600 mt-3 line-clamp-3">
+          {article.excerpt}
+        </p>
+
+        {/* FOOTER */}
+        <div className="mt-auto pt-5 flex items-center justify-between text-xs text-slate-500">
+          <span>{article.author || "StudyCups Team"}</span>
+          <span>
+            {new Date(article.publishedAt).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+      </div>
+    </article>
+  ))}
+</div>
+
         )}
       </div>
 

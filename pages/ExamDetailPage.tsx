@@ -58,7 +58,7 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId, setView }) => {
   return (
     <div className="bg-slate-20">
       {/* HERO */}
-      <div className="relative bg-[--primary-dark] mt-5 pt-5 text-white">
+      <div className="relative bg-[var(--primary-dark)] mt-5 pt-5 text-white">
         <div className="max-w-7xl mx-auto px-4 py-10">
           <button
             onClick={() => setView({ page: "exams" })}

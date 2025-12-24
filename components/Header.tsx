@@ -104,13 +104,7 @@ const Header: React.FC<HeaderProps> = ({ setView, onOpenApplyNow, view }) => {
               Exams
             </button>
 
-            {/* <button
-              onClick={() => handleNavClick({ page: "blog" })}
-              className={tabClass("blog")}
-            >
-              Blog
-            </button> */}
-
+          
             <button
               onClick={() => handleNavClick({ page: "compare" })}
               className={tabClass("compare")}
@@ -171,6 +165,7 @@ const Header: React.FC<HeaderProps> = ({ setView, onOpenApplyNow, view }) => {
               ["Colleges", "listing"],
               ["Courses", "courses"],
               ["Exams", "exams"],
+             
               ["Compare", "compare"],
             ].map(([label, page]) => (
               <button
