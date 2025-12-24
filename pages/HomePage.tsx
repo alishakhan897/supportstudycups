@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import type { View, College } from "../types";
 import { PARTNER_LOGOS } from "../logos";
 import CollegeCard from "../components/CollegeCard"; 
+import { lazy, Suspense } from "react";
 
 
 import {
@@ -13,16 +14,27 @@ import {
 import { useOnScreen } from "../hooks/useOnScreen";
 import ContactForm from "../components/ContactForm"; 
 
+console.log("🔥 HomePage render start");
 
 const useScroll = () => {
     const [scrollY, setScrollY] = useState(0);
 
-    useEffect(() => {
-        const onScroll = () => setScrollY(window.scrollY);
-        window.addEventListener("scroll", onScroll);
-        return () => window.removeEventListener("scroll", onScroll);
-    }, []);
+   useEffect(() => {
+  let ticking = false;
 
+  const onScroll = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  };
+
+  window.addEventListener("scroll", onScroll);
+  return () => window.removeEventListener("scroll", onScroll);
+}, []);
     return scrollY;
 };
 
@@ -86,6 +98,63 @@ const StreamTag: React.FC<{ stream: string }> = ({ stream }) => {
             {stream}
         </div>
     );
+}; 
+
+const extractCourses = (colleges) => {
+  const map = new Map();
+
+  colleges.forEach(col => {
+    const courseArray = col.rawScraped?.courses;
+    if (!Array.isArray(courseArray)) return;
+
+    courseArray.forEach(c => {
+
+      // ❌ SKIP sub courses
+      if (
+        c.isSubCourse === true ||
+        c.parentCourse ||
+        c.parent_course ||
+        c.is_sub_course ||
+        c.subCourse === true
+      ) {
+        return;
+      }
+
+      // ❌ If course has a parent reference → skip
+      if (c.parentId || c.parent_id) return;
+
+      // ❌ If course is inside another course
+      if (c.belongsTo || c.belongs_to) return;
+
+      const key = c.name?.trim()?.toLowerCase();
+      if (!key) return;
+
+      // ✅ MAIN LOGIC
+      if (!map.has(key)) {
+        map.set(key, {
+          id: c.id,                    // ✅ REAL COURSE ID
+          name: c.name,
+          level: c.mode || "Full Time",
+          duration: c.duration || "NA",
+          fees: c.fees ?? "N/A",
+          courseKey: key,
+
+          colleges: [col.id],
+          courseIds: [c.id],           // ✅ REAL IDs
+        });
+      } else {
+        const entry = map.get(key);
+
+        if (!entry.colleges.includes(col.id)) {
+          entry.colleges.push(col.id);
+          entry.courseIds.push(c.id);  // ✅ REAL IDs
+        }
+      }
+
+    });
+  });
+
+  return Array.from(map.values());
 };
 
 const HomePage: React.FC<HomePageProps> = ({
@@ -93,7 +162,7 @@ const HomePage: React.FC<HomePageProps> = ({
     colleges,
     onOpenApplyNow,
     exams,
-     coursesFromColleges
+   
 }) => {
     const [selectedStream, setSelectedStream] = useState("All Streams");
     const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -195,49 +264,27 @@ const cityRefs = useMemo(() => {
 
 
 
-    console.log("coursesFromColleges:", coursesFromColleges);
-
-
-const extractCourses = (colleges) => {
-  const map = new Map();
-
-  colleges.forEach(col => {
-    const courseArray = col.rawScraped?.courses;
-    if (!Array.isArray(courseArray)) return;
-
-    courseArray.forEach(c => {
-      const key = c.name.trim().toLowerCase();
-
-      if (!map.has(key)) {
-        map.set(key, {
-          id: key,
-          name: c.name,
-          level: c.mode || "Full Time",
-          duration: c.duration || "NA",
-          fees: c.fees ?? "N/A",
-          courseKey: key,
-
-          // 🔑 MOST IMPORTANT
-          colleges: [col.id],
-          courseIds: [c.id],
-        });
-      } else {
-        const entry = map.get(key);
-
-        if (!entry.colleges.includes(col.id)) {
-          entry.colleges.push(col.id);
-          entry.courseIds.push(c.id);
-        }
-      }
-    });
-  });
-
-  return Array.from(map.values());
-};
+ 
 
 
 
-const courses = extractCourses(colleges);
+
+
+
+
+// 1️⃣ Home page ke liye colleges limit karo
+const limitedColleges = useMemo(() => {
+  return colleges.slice(0, 20); // sirf first 20 colleges
+}, [colleges]);
+
+// 2️⃣ Courses sirf limited colleges se nikalo (HEAVY LOGIC)
+const courses = useMemo(() => {
+  if (!limitedColleges || limitedColleges.length === 0) return [];
+  return extractCourses(limitedColleges);
+}, [limitedColleges]);
+
+ 
+
    useEffect(() => {
         let typingSpeed = 120;
 
@@ -750,42 +797,9 @@ const exploreLevels = useMemo(() => {
 }, [courses]);
 
 
-    return (
+    return ( 
+     
         <div >
-
-
-            <style>{`
-  @keyframes scrollX {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  } 
-
-  @keyframes logoScroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-logoScroll {
-  animation: logoScroll 20s linear infinite;
-}
-  @keyframes cityAutoScroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-cityScroll {
-  animation: cityAutoScroll 25s linear infinite;
-}
-
-`}</style>
 
 
 
@@ -1329,9 +1343,11 @@ style={{
 
 
 
-{/* EXPLORE COURSES SECTION */}
+{/* EXPLORE COURSES SECTION */} 
+<Suspense fallback={<div className="py-20 text-center">Loading...</div>}>
 <section className="py-16 bg-white">
   <div className="max-w-7xl mx-auto px-6">
+  
 
     {/* Heading */}
     <div className="flex items-center gap-3 mb-6">
@@ -1393,13 +1409,13 @@ style={{
         .map((course, index) => (
           <div
             key={index}
-            onClick={() =>
-              setView({
-                page: "course-detail",
-                courseIds: [course.id],
-                courseKey: course.courseKey
-              })
-            }
+           onClick={() =>
+  setView({
+    page: "course-detail",
+    courseIds: course.courseIds,   // ✅ array of DB IDs
+    courseKey: course.courseKey
+  })
+}
             className="
               min-w-[260px] snap-start p-5 cursor-pointer
               bg-white rounded-2xl border border-gray-200 
@@ -1445,7 +1461,7 @@ style={{
               <div className="bg-gray-50 p-3 rounded-md border flex flex-col">
                 <span className="text-gray-500 text-[11px]">Avg. Fees</span>
                 <span className="font-semibold">
-                  ₹{course.fees || "NA"}
+                  {course.fees || "NA"}
                 </span>
               </div>
 
@@ -1503,7 +1519,7 @@ style={{
 
   </div>
 </section>
-
+</Suspense>
 
 {/* Trusted by Students Section testimonials  */}
 <section className="py-12 bg-[#f4f6fb]">

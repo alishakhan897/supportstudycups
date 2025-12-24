@@ -62,3 +62,36 @@
 html {
   scroll-behavior: smooth;
 }
+      
+  @keyframes scrollX {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  } 
+
+  @keyframes logoScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-logoScroll {
+  animation: logoScroll 20s linear infinite;
+}
+  @keyframes cityAutoScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-cityScroll {
+  animation: cityAutoScroll 25s linear infinite;
+}
+
+
+

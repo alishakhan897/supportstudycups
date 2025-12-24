@@ -1,5 +1,7 @@
 import React from "react";
 import type { College, View } from "../types";
+import { lazy, Suspense } from "react";
+
 
 interface CollegeCardProps {
   college: College;
@@ -68,7 +70,9 @@ const CollegeCard: React.FC<CollegeCardProps> = ({
 
        {(college.logoUrl || college.rawScraped?.logo) && (
   <img
-    src={college.logoUrl ?? college.rawScraped?.logo}
+    src={college.logoUrl ?? college.rawScraped?.logo} 
+    loading="lazy"
+  decoding="async"
     className="absolute bottom-3 left-3 h-10 w-10 bg-white rounded-lg shadow p-1"
   />
 )}
