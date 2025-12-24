@@ -1,0 +1,25 @@
+[33me2bb193[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Add Frontend source code
+[33mc631731[m fixed registration form update
+[33mc1c87cd[m fixed registration form update
+[33m0fea216[m fixed registration form update
+[33m046aa4d[m fixed registration form update
+[33mddaf842[m fixed registration form update
+[33mb54999e[m Add Vercel configuration for URL rewrites
+[33m2051c71[m Code push
+[33mff174df[m first commit
+[33mf2ad68d[m first commit
+[33meaa73a2[m Fix: Updated vercel.json for proper Vite routing
+[33m97bb44c[m Fix: Vercel redeploy issue trigger
+[33m5a748ed[m trigger deploy
+[33mb7a92db[m updated EventPass (download button + scroll fix)
+[33m91389c9[m updated EventPass (download button + scroll fix)
+[33m17c7ae8[m FIX: Prevent passing to EventPass page on duplicate registration number.
+[33m44a2df5[m registration form updated, redirects added
+[33m5440121[m first commit
+[33m8e01964[m first commit
+[33ma33ae54[m added vercel routing file
+[33mfbcc875[m Updated code: registration & event pass integration
+[33m3eae4f8[m chore: sync latest changes and configs
+[33m7a9b9fc[m UI improvements: ApplyNowModal redesign and polish; theme color standardization across components; auto-open modal delay set to 2s; minor hero text tint fixes; constants gradients aligned to theme
+[33mcc75d62[m Update contact info (phone/email); add Bennett University and NBS entries; remove BusinessSchools page and data; general data and assets updates
+[33mba0c8a8[m Initial commit: StudyCups college portal
