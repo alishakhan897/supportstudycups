@@ -969,7 +969,7 @@ const HomePage: React.FC<HomePageProps> = ({
             snap-x snap-mandatory
              
             
-            gap-3 md:gap-3
+            gap-3 md:gap-6
       "
               >
                 {courseCategories.map((category, index) => (
@@ -984,7 +984,8 @@ const HomePage: React.FC<HomePageProps> = ({
                       className={`
               ${category.color}
               text-white rounded-2xl 
-
+              flex-shrink:0 
+              w-[220px] md:w-[full]
               /* Desktop Size */
               px-6 py-6 h-[150px] md:h-[170px]
 
