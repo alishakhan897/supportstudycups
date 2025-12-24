@@ -267,6 +267,8 @@ const onCompareToggle = (id: number) => {
 
   return (
     <div className="bg-[--background] text-[--text-primary] min-h-screen flex flex-col font-sans">
+     
+
       <Header
         setView={setView}
         onOpenApplyNow={openApplyModal}

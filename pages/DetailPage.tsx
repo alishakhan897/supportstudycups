@@ -1452,7 +1452,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
         return (
           <div className="space-y-6">
             {/* ================= About ================= */}
-            <div className="bg-white border rounded-2xl p-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6">
               <h3 className="text-xl font-bold mb-3">
                 About {college.name}
               </h3>
@@ -1768,7 +1768,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
             </aside>
 
             {/* ================= Fee ================= */}
-            <div className="bg-white border rounded-2xl p-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6">
               <h3 className="font-bold mb-3">Fee Structure</h3>
               <p className="text-lg font-bold text-green-700">
                 ₹{college.feesRange.min.toLocaleString("en-IN")} – ₹
@@ -1777,7 +1777,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
               <p className="text-xs text-slate-500 mt-1">Per year</p>
             </div>
 
-            <div className="bg-white border rounded-2xl shadow p-6">
+            <div className="bg-white border border-slate-200 rounded-2xl shadow p-6">
 
               {/* =============== Gallery Carousel =============== */}
               <h3 className="text-xl font-bold mb-4">Campus Gallery</h3>
@@ -1909,7 +1909,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
 
             {/* ================= Course & Fee Structure ================= */}
             {feeInfo && feeTable.length > 0 && (
-              <div className="bg-white border rounded-2xl p-6 mt-10">
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 mt-10">
 
                 {/* HEADING */}
                 <h3 className="text-xl font-bold text-blue-900 mb-2">
@@ -1926,8 +1926,8 @@ const DetailPage: React.FC<DetailPageProps> = ({
         TERM WISE TABLE  (IIM Rohtak type)
        ===================================================== */}
                 {isTermWise && (
-                  <div className="overflow-x-auto border rounded-xl">
-                    <table className="w-full min-w-[600px] border-collapse text-sm">
+                  <div className="overflow-x-auto border border-slate-200 rounded-xl ">
+                    <table className="w-full min-w-[600px] border-collapse border-slate-200 text-sm">
 
                       <thead className="bg-slate-100 text-slate-700">
                         <tr>
@@ -2428,7 +2428,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
       {/* TABS */}
       <div
         className="
-    bg-white border-b z-30
+    bg-white  z-30
     
     /* DESKTOP behaviour unchanged */
     md:sticky md:top-[70px]

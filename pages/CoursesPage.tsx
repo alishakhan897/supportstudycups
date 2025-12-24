@@ -276,8 +276,8 @@ col.rawScraped.courses.forEach((cr) => {
         value={searchTerm}
         onChange={e => setSearchTerm(e.target.value)}
         placeholder="Search B.Tech, MBA, MBBS, Design..."
-        className="w-full pl-12 pr-4 py-3 rounded-full text-slate-900 text-base
-                   shadow-lg focus:ring-2 focus:ring-blue-300 outline-none"
+        className="w-full pl-12 pr-4 py-3 rounded-full text-white text-base
+                   shadow-lg focus:ring-2 focus:ring-blue-300 outline-none "
       />
     </div>
 
@@ -311,7 +311,7 @@ col.rawScraped.courses.forEach((cr) => {
 
       <div className="container mx-auto px-6 py-12">
         {/* FILTERS */}
-        <div className="bg-white rounded-2xl border shadow-sm p-6 mb-12 space-y-6">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-12 space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-semibold mb-3">Filter by Stream</h3>
@@ -322,8 +322,8 @@ col.rawScraped.courses.forEach((cr) => {
                     onClick={() => setSelectedStream(stream)}
                     className={`px-4 py-2 rounded-full text-sm font-semibold border ${
                       selectedStream === stream
-                        ? "bg-[--primary-medium] text-white border-[--primary-medium]"
-                        : "bg-white border-slate-300"
+                        ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)]"
+            : "bg-white text-slate-700 hover:bg-slate-100 border-slate-300"
                     }`}
                   >
                     {stream}
@@ -341,8 +341,8 @@ col.rawScraped.courses.forEach((cr) => {
                     onClick={() => setSelectedLevel(level)}
                     className={`px-4 py-2 rounded-full text-sm font-semibold border ${
                       selectedLevel === level
-                        ? "bg-[--primary-medium] text-white border-[--primary-medium]"
-                        : "bg-white border-slate-300"
+                        ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)]"
+            : "bg-white text-slate-700 hover:bg-slate-100 border-slate-300"
                     }`}
                   >
                     {level}
@@ -377,7 +377,7 @@ col.rawScraped.courses.forEach((cr) => {
     })
   }
   className="
-    bg-white rounded-2xl border
+    bg-white rounded-2xl border border-slate-200
     shadow-[0_8px_24px_rgba(0,0,0,0.08)]
     hover:shadow-[0_12px_32px_rgba(0,0,0,0.12)]
     transition-all duration-300
@@ -402,23 +402,23 @@ col.rawScraped.courses.forEach((cr) => {
     truncate
     whitespace-nowrap
     overflow-hidden
-    max-w-full
+    max-w-full 
   ">
     {course.fullName}
   </h3>
 
   {/* STATS GRID */}
-  <div className="grid grid-cols-2 gap-3 text-sm mb-6">
-    <div className="border rounded-lg p-3">
+  <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+    <div className="border border-slate-300 rounded-lg p-3">
       <p className="text-xs text-slate-500">Duration</p>
-      <p className="font-semibold">
+      <p className="font-semibold truncate">
         {course.duration || "N/A"}
       </p>
     </div>
 
-    <div className="border rounded-lg p-3">
+    <div className="border border-slate-300 rounded-lg p-3">
       <p className="text-xs text-slate-500">Avg. Fees</p>
-      <p className="font-semibold">
+      <p className="font-semibold truncate">
     {course.fees}
 
 
@@ -426,7 +426,7 @@ col.rawScraped.courses.forEach((cr) => {
       </p>
     </div>
 
-    <div className="border rounded-lg p-3">
+    <div className="border border-slate-300 rounded-lg p-3">
       <p className="text-xs text-slate-500">Colleges</p>
      <p className="font-semibold">
  {course.colleges?.length || 0}
@@ -435,9 +435,9 @@ col.rawScraped.courses.forEach((cr) => {
 
     </div>
 
-    <div className="border rounded-lg p-3">
+    <div className="border border-slate-300 rounded-lg p-3">
       <p className="text-xs text-slate-500">Level</p>
-      <p className="font-semibold">
+      <p className="font-semibold truncate">
         {course.level}
       </p>
     </div>

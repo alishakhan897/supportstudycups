@@ -80,20 +80,20 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
         lg:sticky lg:top-28
       `}
     >
-      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border-slate-200 shadow-sm overflow-hidden">
 
         {/* HEADER */}
         <div className="flex items-center justify-between px-5 py-4 border-b bg-slate-50">
           <h3 className="text-base font-bold text-slate-800">Filters</h3>
           <button
             onClick={onClearFilters}
-            className="text-sm font-semibold text-[--primary-medium] hover:underline"
+            className="text-sm font-semibold text-[blue] hover:underline"
           >
             Clear All
           </button>
         </div>
 
-        <div className="p-5 space-y-6">
+        <div className="p-5 space-y-6 border-t border-slate-200">
 
           {/* BASIC SEARCH */}
           <div className="space-y-3">
@@ -123,55 +123,83 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
             />
           </div>
 
-          {/* STREAM */}
-          <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-3">
-              Stream
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {["All", ...streams].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setFilters((p) => ({ ...p, stream: s }))}
-                  className={`
-                    px-3 py-1.5 text-xs font-medium rounded-full border
-                    ${filters.stream === s
-                      ? "bg-[--primary-medium] text-white border-[--primary-medium]"
-                      : "bg-white text-slate-700 hover:bg-slate-100"
-                    }
-                  `}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
+       {/* STREAM */}
+<div>
+  <h4 className="text-sm font-semibold text-slate-700 mb-3">
+    Stream
+  </h4>
+
+  <div
+    className="
+      flex flex-wrap gap-2
+      max-h-[72px]     /* 👈 approx 2 rows */
+      overflow-y-auto
+      pr-2
+    "
+  >
+    {["All", ...streams].map((s) => (
+      <button
+        key={s}
+        onClick={() => setFilters((p) => ({ ...p, stream: s }))}
+        className={`
+          px-2 py-1.5 text-xs font-medium rounded-full border
+          whitespace-nowrap
+          ${filters.stream === s
+            ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)]"
+            : "bg-white text-slate-700 hover:bg-slate-100 border-slate-300"
+          }
+        `}
+      >
+        {s}
+      </button>
+    ))}
+  </div>
+</div>
 
           {/* COLLEGE TYPE */}
-          <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-3">
-              College Type
-            </h4>
-            <div className="flex gap-1">
-              {collegeTypes.map((t) => (
-                <button
-                  key={t}
-                  onClick={() =>
-                    setFilters((p) => ({ ...p, collegeType: t }))
-                  }
-                  className={`
-                    px-2 py-2 text-[9px] font-medium rounded-lg border
-                    ${filters.collegeType === t
-                      ? "bg-[--primary-medium] text-white border-[--primary-medium]"
-                      : "bg-white text-slate-700 hover:bg-slate-100"
-                    }
-                  `}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
+     {/* COLLEGE TYPE */}
+<div>
+  <h4 className="text-sm font-semibold text-slate-800 mb-3">
+    College Type
+  </h4>
+
+  <div
+    className="
+      grid grid-cols-2 gap-3 md:gap-2
+      max-h-[96px]          /* 2 rows only */
+      overflow-y-auto
+      pr-1
+      scrollbar-thin
+    "
+  >
+    {collegeTypes.map((t) => (
+      <button
+        key={t}
+        onClick={() =>
+          setFilters((p) => ({ ...p, collegeType: t }))
+        }
+        className={`
+          h-[54px] w-full
+          flex items-center justify-center text-center
+          text-[11px] leading-tight font-semibold
+          rounded-xl border transition-all
+          ${filters.collegeType === t
+            ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)] shadow-sm"
+            : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+          }
+        `}
+      >
+        <span className=" px-2
+    text-center
+    leading-tight
+    [font-size:clamp(9px,2.5vw,11px)]">
+          {t}
+        </span>
+      </button>
+    ))}
+  </div>
+</div>
+
 
           {/* RATING */}
           <div>
@@ -189,7 +217,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     px-3 py-1.5 text-xs font-medium rounded-full border
                     ${filters.minRating === r.value
                       ? "bg-amber-400 text-black border-amber-400"
-                      : "bg-white text-slate-700 hover:bg-slate-100"
+                      : "bg-white text-slate-700 hover:bg-slate-20"
                     }
                   `}
                 >
@@ -351,22 +379,32 @@ const filteredColleges = useMemo(() => {
 
       {/* ✅ ONLY MOBILE SEARCH + FILTER (UPPER ONE) */}
       <div className="lg:hidden max-w-7xl mx-auto px-4 -mt-3 mb-4">
-        <div className="bg-white rounded-xl border shadow flex items-center gap-3 px-4 py-3">
-          <input
-            placeholder="Search college, city, course..."
-            className="flex-1 text-sm outline-none"
-            value={filters.college}
-            onChange={(e) =>
-              setFilters((p) => ({ ...p, college: e.target.value }))
-            }
-          />
-          <button
-            onClick={() => setShowMobileFilters(true)}
-            className="text-sm font-semibold text-[--primary-medium]"
-          >
-            Filters
-          </button>
-        </div>
+      <div className="bg-white rounded-xl border-none shadow-none flex items-center gap-3 px-4 py-3">
+  <input
+    placeholder="Search college, city, course..."
+    className="
+      flex-1 text-sm
+      bg-transparent
+      border-0
+      outline-none
+      ring-0
+      focus:ring-0
+      focus:outline-none
+      shadow-none
+    "
+    value={filters.college}
+    onChange={(e) =>
+      setFilters((p) => ({ ...p, college: e.target.value }))
+    }
+  />
+  <button
+    onClick={() => setShowMobileFilters(true)}
+    className="text-sm font-semibold text-[var(--primary-medium)]"
+  >
+    Filters
+  </button>
+</div>
+
       </div>
 
       {/* CONTENT */}

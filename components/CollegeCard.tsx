@@ -48,7 +48,7 @@ const CollegeCard: React.FC<CollegeCardProps> = ({
       className="
         bg-white
         rounded-xl 
-        border 
+        border-borderWhite/20
         shadow-[0_6px_20px_rgba(0,0,0,0.10)]
         hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)]
         transition-all duration-300
@@ -96,7 +96,7 @@ const CollegeCard: React.FC<CollegeCardProps> = ({
           </p>
 
           <div className="flex items-center gap-1">
-            <span className="text-yellow-500 font-semibold text-sm">
+            <span className="text-yellow-500 font-semibold text-sm ">
               {college.rating}
             </span>
             <StarRating rating={college.rating} />
@@ -116,12 +116,12 @@ const CollegeCard: React.FC<CollegeCardProps> = ({
           </span>
         </p>
 
-        <p className="text-[12px] text-slate-500 mt-2">
+        <p className="text-[12px] text-slate-500 mt-2 truncate">
           Ranked {college.ranking ?? college.rawScraped?.ranking_data?.[0]?.ranking ?? "N/A"}
 
         </p>
 
-        <div className="border-t my-3"></div>
+        <div className="border-t my-2 text-slate-500"></div>
 
         <div className="space-y-2 text-sm">
           <button

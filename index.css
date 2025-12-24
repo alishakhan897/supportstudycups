@@ -1,4 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss"; 
+
+:root {
+  --primary-medium: #1e4e79; /* same blue as screenshot */
+}
+
+/* ===============================
+   GLOBAL BORDER NORMALIZATION
+================================ */
+
+/* Default borders ko soft karo */
+.border,
+.border-b,
+.border-t,
+.border-l,
+.border-r {
+  border-color: rgba(15, 43, 90, 0.12) !important;
+}
+
+/* Tabs & navigation ke unwanted dividers hatao */
+[data-tabs] .border-b {
+  border-bottom: none !important;
+}
+
+/* Cards ke liye standard look */
+.card,
+.ui-card {
+  border: 1px solid rgba(15, 43, 90, 0.12);
+  border-radius: 14px;
+  background: #fff;
+}
+
 
 /* Apply Poppins globally */
 * {
