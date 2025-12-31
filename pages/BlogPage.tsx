@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 /* ===================== DUMMY NEWS ===================== */
 
@@ -84,13 +85,15 @@ const FeedbackSection = () => (
 /* ===================== MAIN PAGE ===================== */
 
 const BlogPage: React.FC = () => {
+  const navigate = useNavigate();
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/blogs");
+        const res = await fetch("https://studycupsbackend.onrender.com/api/blogs");
         const json = await res.json();
         setArticles(json.data || []);
       } catch (err) {
@@ -191,6 +194,7 @@ const BlogPage: React.FC = () => {
   {articles.map(article => (
     <article
       key={article._id}
+      onClick={() => navigate(`/blog/${article._id}`)}
       className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
     >
       {/* IMAGE */}

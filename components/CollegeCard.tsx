@@ -1,17 +1,17 @@
 import React from "react";
-import type { College, View } from "../types";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react"; 
+import type { College } from "../types";
+import { useNavigate } from "react-router-dom";
+
 
 
 interface CollegeCardProps {
   college: College;
-  setView: (view: View) => void;
-  onCompareToggle?: (id: number) => void;
+  onCompareToggle?: (id: string) => void;
   isCompared?: boolean;
-  isListingCard?: boolean;
-  onOpenApplyNow?: () => void;
   onOpenBrochure?: () => void;
 }
+
 
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
   const full = Math.floor(rating);
@@ -33,7 +33,7 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 
 const CollegeCard: React.FC<CollegeCardProps> = ({
   college,
-  setView,
+ 
   onCompareToggle,
   isCompared,
   onOpenBrochure,
@@ -41,7 +41,19 @@ const CollegeCard: React.FC<CollegeCardProps> = ({
   const mainImage =
     college.imageUrl ??
     college.heroImages?.[0] ??
-    "/no-image.jpg";
+    "/no-image.jpg"; 
+  const navigate = useNavigate();
+
+const slug = college.name
+  .toLowerCase()
+  .replace(/\([^)]*\)/g, "")
+  .replace(/[^a-z0-9\s-]/g, "")
+  .trim()
+  .replace(/\s+/g, "-");
+
+const slugId = `${slug}--${college.id}`;
+
+
 
   return (
     <div
@@ -124,25 +136,21 @@ const CollegeCard: React.FC<CollegeCardProps> = ({
         <div className="border-t my-2 text-slate-500"></div>
 
         <div className="space-y-2 text-sm">
-          <button
-            onClick={() =>
-              setView({
-                page: "detail",
-                collegeId: college.id,
-              })
-            }
-            className="
-                flex justify-between items-center w-full text-left 
-                py-1 px-2
-                rounded-md
-                transition-all
-                hover:bg-slate-100
-                hover:rounded-full
-                hover:px-3
-              "
-          >
-            View All Courses and Fees <span>›</span>
-          </button>
+       <button
+ onClick={() => navigate(`/college/${slugId}`)}
+  className="
+    flex justify-between items-center w-full text-left 
+    py-1 px-2
+    rounded-md
+    transition-all
+    hover:bg-slate-100
+    hover:rounded-full
+    hover:px-3
+  "
+>
+  View All Courses and Fees <span>›</span>
+</button>
+
 
           <button
             onClick={onOpenBrochure}
@@ -156,7 +164,7 @@ const CollegeCard: React.FC<CollegeCardProps> = ({
           </button>
 
           <button
-            onClick={() => onCompareToggle?.(college.id)}
+           onClick={() => onCompareToggle?.(String(college.id))}
             className={`
                 flex justify-between items-center w-full text-left
                 py-1 px-2 rounded-md transition-all

@@ -1,7 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
-import type { View, College } from "../types";
+import type { College } from "../types";
 import CollegeCard from "../components/CollegeCard";
 import { COURSE_STREAMS } from "../constants";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+
 
 /* ================= TYPES ================= */
 
@@ -16,7 +19,6 @@ type Filters = {
 };
 
 interface ListingPageProps {
-  setView: (view: View) => void;
   colleges: College[];
   compareList: number[];
   onCompareToggle: (id: number) => void;
@@ -44,12 +46,14 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   onClearFilters,
   forceShow = false,
   colleges,
-}) => {
+}) => {  
+  
   const streams = useMemo(() => {
   const set = new Set<string>();
 
   colleges.forEach((c) => {
-    const s = c.rawScraped?.stream;
+    const s = c.stream;
+
     if (Array.isArray(s)) s.forEach(v => set.add(v));
     else if (typeof s === "string") set.add(s);
   });
@@ -156,7 +160,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   </div>
 </div>
 
-          {/* COLLEGE TYPE */}
+        
      {/* COLLEGE TYPE */}
 <div>
   <h4 className="text-sm font-semibold text-slate-800 mb-3">
@@ -237,7 +241,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 /* ================= MAIN PAGE ================= */
 
 const ListingPage: React.FC<ListingPageProps> = ({
-  setView,
+  
   colleges,
   compareList,
   onCompareToggle,
@@ -252,18 +256,34 @@ const ListingPage: React.FC<ListingPageProps> = ({
     stream: "All",
     collegeType: "All",
     minRating: 0,
-  });
+  }); 
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false); 
+  
 
   useEffect(() => {
-    if (initialFilters) {
-      setFilters((p) => ({ ...p, ...initialFilters }));
-    }
-  }, [initialFilters]);
+  // 1️⃣ Apply filters coming via props (if any)
+  if (initialFilters) {
+    setFilters((p) => ({ ...p, ...initialFilters }));
+  }
 
- const normalize = (s = "") =>
-  s.toLowerCase().replace(/\s+/g, "");
+  // 2️⃣ Apply filters coming via router state (HomePage / City click)
+  if (location.state && typeof location.state === "object") {
+    setFilters((p) => ({
+      ...p,
+      ...location.state,
+    }));
+  }
+}, [initialFilters, location.state]);
+
+
+ const normalize = (s?: string) =>
+  typeof s === "string"
+    ? s.toLowerCase().replace(/\s+/g, "")
+    : "";
+
 
 
 const filteredColleges = useMemo(() => {
@@ -276,10 +296,11 @@ const filteredColleges = useMemo(() => {
     ) return false;
 
     // 2️⃣ City
-    if (
-      filters.city &&
-      !normalize(c.location).includes(normalize(filters.city))
-    ) return false;
+    if (filters.city) {
+  const loc = normalize(c.location);
+  if (!loc.includes(normalize(filters.city))) return false;
+}
+
 
     // 3️⃣ Course (SAFE)
     if (filters.course) {
@@ -292,16 +313,24 @@ const filteredColleges = useMemo(() => {
     }
 
     // 4️⃣ Stream (SAFE + normalized)
-    if (filters.stream !== "All") {
-      const s = c.rawScraped?.stream;
-      if (!s) return true; // allow missing stream
+   if (filters.stream !== "All") {
+  const s = c.stream;
 
-      const match = Array.isArray(s)
-        ? s.map(v => v.toLowerCase()).includes(filters.stream.toLowerCase())
-        : s.toLowerCase() === filters.stream.toLowerCase();
+  // agar stream missing hai to allow karo
+  if (!s) return true;
 
-      if (!match) return false;
-    }
+  const normalizeStream = (v: string) =>
+    v.toLowerCase().replace(/\s+/g, "").replace(/[/.]/g, "");
+
+  const match = Array.isArray(s)
+    ? s.some(v =>
+        normalizeStream(v).includes(normalizeStream(filters.stream))
+      )
+    : normalizeStream(s).includes(normalizeStream(filters.stream));
+
+  if (!match) return false;
+}
+
 
     // 5️⃣ College type (SAFE)
     if (
@@ -438,8 +467,9 @@ const filteredColleges = useMemo(() => {
                 <CollegeCard
                   key={college.id}
                   college={college}
-                  setView={setView}
-                  isCompared={compareList.includes(college.id)}
+              
+                 isCompared={compareList.includes(String(college.id))}
+
                   onCompareToggle={onCompareToggle}
                   isListingCard
                   onOpenApplyNow={onOpenApplyNow}

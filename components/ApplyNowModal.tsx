@@ -6,7 +6,7 @@ interface ApplyNowModalProps {
   mode: "apply" | "brochure";
 }
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://studycupsbackend.onrender.com";
 
 const ApplyNowModal: React.FC<ApplyNowModalProps> = ({
   isOpen,

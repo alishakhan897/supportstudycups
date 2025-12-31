@@ -3,6 +3,8 @@ import type { View, College } from "../types";
 import { PARTNER_LOGOS } from "../logos";
 import CollegeCard from "../components/CollegeCard";
 import { lazy, Suspense } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 
 import {
@@ -14,7 +16,7 @@ import {
 import { useOnScreen } from "../hooks/useOnScreen";
 import ContactForm from "../components/ContactForm";
 
-console.log("🔥 HomePage render start");
+
 
 const useScroll = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -55,9 +57,9 @@ const FadeSection = ({ children, delay = 0 }) => {
 
 
 interface HomePageProps {
-  setView: (view: View) => void;
+
   colleges: College[];
-  onOpenApplyNow: () => void;
+
   exams: any[];
 
 }
@@ -100,71 +102,71 @@ const StreamTag: React.FC<{ stream: string }> = ({ stream }) => {
   );
 };
 
-const extractCourses = (colleges) => {
+const extractCourses = (colleges = []) => {
   const map = new Map();
 
-  colleges.forEach(col => {
-    const courseArray = col.rawScraped?.courses;
+  (Array.isArray(colleges) ? colleges : []).forEach(col => {
+    const courseArray = col?.rawScraped?.courses;
     if (!Array.isArray(courseArray)) return;
 
     courseArray.forEach(c => {
-
-      // ❌ SKIP sub courses
+      // skip sub-courses
       if (
         c.isSubCourse === true ||
         c.parentCourse ||
         c.parent_course ||
         c.is_sub_course ||
-        c.subCourse === true
+        c.subCourse === true ||
+        c.parentId ||
+        c.parent_id ||
+        c.belongsTo ||
+        c.belongs_to
       ) {
         return;
       }
 
-      // ❌ If course has a parent reference → skip
-      if (c.parentId || c.parent_id) return;
-
-      // ❌ If course is inside another course
-      if (c.belongsTo || c.belongs_to) return;
-
       const key = c.name?.trim()?.toLowerCase();
       if (!key) return;
 
-      // ✅ MAIN LOGIC
       if (!map.has(key)) {
         map.set(key, {
-          id: c.id,                    // ✅ REAL COURSE ID
+          id: c.id,
           name: c.name,
           level: c.mode || "Full Time",
           duration: c.duration || "NA",
           fees: c.fees ?? "N/A",
           courseKey: key,
-
           colleges: [col.id],
-          courseIds: [c.id],           // ✅ REAL IDs
+          courseIds: [c.id],
         });
       } else {
         const entry = map.get(key);
-
         if (!entry.colleges.includes(col.id)) {
           entry.colleges.push(col.id);
-          entry.courseIds.push(c.id);  // ✅ REAL IDs
+          entry.courseIds.push(c.id);
         }
       }
-
     });
   });
 
   return Array.from(map.values());
 };
 
+
 const HomePage: React.FC<HomePageProps> = ({
-  setView,
+
   colleges,
-  onOpenApplyNow,
+
   exams,
 
-}) => {
-  const [selectedStream, setSelectedStream] = useState("All Streams");
+}) => { 
+  useEffect(() => {
+ 
+}, [colleges, exams]);
+
+  const navigate = useNavigate();
+  const [selectedStream, setSelectedStream] = useState<string | null>(null);
+
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [heroFilters, setHeroFilters] = useState({
     college: "",
@@ -186,7 +188,30 @@ const HomePage: React.FC<HomePageProps> = ({
   const scrollY = useScroll();
 
   const heroTranslate = Math.min(scrollY * 0.5, 160); // image moves upward  
-  const heroOpacity = Math.max(1 - scrollY / 400, 0);
+  const heroOpacity = Math.max(1 - scrollY / 400, 0); 
+
+  const collegeMatchesStream = (college: any, selectedStream: string) => {
+  if (!selectedStream || selectedStream === "All Streams") return true;
+
+  const stream = college?.stream; // ✅ TOP LEVEL
+
+  if (!stream) return false;
+
+  if (Array.isArray(stream)) {
+    return stream.some(
+      s =>
+        s.toLowerCase().trim() ===
+        selectedStream.toLowerCase().trim()
+    );
+  }
+
+  return (
+    typeof stream === "string" &&
+    stream.toLowerCase().trim() ===
+      selectedStream.toLowerCase().trim()
+  );
+};
+
 
 
   const extractCityState = (location?: string) => {
@@ -228,8 +253,8 @@ const HomePage: React.FC<HomePageProps> = ({
   const cityStateList = useMemo(() => {
     const map = new Map<string, { city: string; state: string | null }>();
 
-    colleges.forEach(college => {
-      const parsed = extractCityState(college.location);
+    (Array.isArray(colleges) ? colleges : []).forEach(college => {
+      const parsed = extractCityState(college?.location);
       if (!parsed) return;
 
       const key = parsed.city.toLowerCase();
@@ -240,6 +265,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
     return Array.from(map.values());
   }, [colleges]);
+
 
   const [animatedCollegeWordIndex, setAnimatedCollegeWordIndex] = useState(0);
 
@@ -275,7 +301,8 @@ const HomePage: React.FC<HomePageProps> = ({
 
   // 1️⃣ Home page ke liye colleges limit karo
   const limitedColleges = useMemo(() => {
-    return colleges.slice(0, 20); // sirf first 20 colleges
+    if (!Array.isArray(colleges)) return [];
+    return colleges.slice(0, 20);
   }, [colleges]);
 
   // 2️⃣ Courses sirf limited colleges se nikalo (HEAVY LOGIC)
@@ -353,8 +380,12 @@ const HomePage: React.FC<HomePageProps> = ({
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setView({ page: "listing", filters: heroFilters });
+
+    navigate("/colleges", {
+      state: heroFilters,
+    });
   };
+
 
   const normalize = (str: string) =>
     str.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
@@ -406,53 +437,40 @@ const HomePage: React.FC<HomePageProps> = ({
   };
 
 
+
   const dynamicStreams = useMemo(() => {
-    const set = new Set<string>();
+  const set = new Set<string>();
 
-    colleges.forEach((college) => {
-      const stream = college.rawScraped?.stream;
+  (Array.isArray(colleges) ? colleges : []).forEach(college => {
+    const stream = college?.stream; // ✅ FIX
 
-      if (Array.isArray(stream)) {
-        stream.forEach(s => {
-          if (s && typeof s === "string") {
-            set.add(s.trim());
-          }
-        });
-      } else if (typeof stream === "string") {
-        set.add(stream.trim());
-      }
-    });
+    if (Array.isArray(stream)) {
+      stream.forEach(s => {
+        if (typeof s === "string" && s.trim()) set.add(s.trim());
+      });
+    } else if (typeof stream === "string" && stream.trim()) {
+      set.add(stream.trim());
+    }
+  });
 
-    return Array.from(set).sort();
-  }, [colleges]);
+  return Array.from(set).sort();
+}, [colleges]);
 
-
-
-  const streams = useMemo(
-    () => ["All Streams", ...dynamicStreams],
-    [dynamicStreams]
-  );
 
 
   const filteredColleges = useMemo(() => {
-    if (selectedStream === "All Streams") {
-      return colleges.slice(0, 8);
-    }
+  if (!Array.isArray(colleges)) return [];
 
-    return colleges.filter(college => {
-      const stream = college.rawScraped?.stream;
+  // ✅ FIRST FILTER
+  const filtered = colleges.filter(college =>
+    collegeMatchesStream(college, selectedStream || "All Streams")
+  );
 
-      if (Array.isArray(stream)) {
-        return stream.includes(selectedStream);
-      }
+  // ✅ THEN LIMIT
+  return filtered.slice(0, 8);
+}, [colleges, selectedStream]);
 
-      if (typeof stream === "string") {
-        return stream === selectedStream;
-      }
 
-      return false;
-    });
-  }, [colleges, selectedStream]);
 
 
 
@@ -860,7 +878,7 @@ const HomePage: React.FC<HomePageProps> = ({
           }}
         >
 
-          {/* HEADING */}
+
           <h1 className="
        text-white font-extrabold
       text-[20px] leading-[36px] pt-6
@@ -967,7 +985,7 @@ const HomePage: React.FC<HomePageProps> = ({
            
             scrollbar-hide
             snap-x snap-mandatory
-             
+            
             
             gap-3 md:gap-6
       "
@@ -976,11 +994,11 @@ const HomePage: React.FC<HomePageProps> = ({
                   <AnimatedContainer key={category.name} delay={index * 80}>
                     <button
                       onClick={() =>
-                        setView({
-                          page: "courses",
-                          initialStream: category.name,
+                        navigate("/courses", {
+                          state: { initialStream: category.name },
                         })
                       }
+
                       className={`
               ${category.color}
               text-white rounded-2xl 
@@ -1084,7 +1102,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
                 {/* RIGHT SIDE: Stream Filters */}
                 <div className="flex flex-wrap gap-1 lg:justify-end lg:max-w-[60%]">
-                  {streams.map((stream) => (
+                  {dynamicStreams.map((stream) => (
                     <button
                       key={stream}
                       onClick={() => setSelectedStream(stream)}
@@ -1138,7 +1156,6 @@ const HomePage: React.FC<HomePageProps> = ({
                       <AnimatedContainer delay={index * 90} className="h-full">
                         <CollegeCard
                           college={college}
-                          setView={setView}
                           onOpenBrochure={() => {
                             setModalMode("brochure");
                             setApplyModalOpen(true);
@@ -1180,7 +1197,8 @@ const HomePage: React.FC<HomePageProps> = ({
             {/* View All Button */}
             <div className="text-center mt-0">
               <button
-                onClick={() => setView({ page: "listing" })}
+                onClick={() => navigate("/colleges")}
+
                 className="px-8 py-3 rounded-full bg-[#1f4fa8] text-white
                 font-semibold shadow-lg hover:bg-[#163a7a]
                 transition-all text-sm md:text-base mb-8"
@@ -1293,25 +1311,24 @@ const HomePage: React.FC<HomePageProps> = ({
                 <div
                   key={city.city}
                   ref={cityRefs[city.city]}
-                  onClick={() =>
-                    setView({
-                      page: "listing",
-                      filters: { city: city.city },
-                    })
-                  }
-                 className={`
+                onClick={() =>
+  navigate("/colleges", {
+    state: { city: city.city },
+  })
+}
+
+                  className={`
   min-w-[130px] md:min-w-[150px]
   h-[135px] md:h-[150px]
    rounded-2xl border
   shadow-md hover:shadow-xl 
   snap-start p-4 md:p-6 cursor-pointer
-  flex flex-col items-center justify-center transition
-  ${
-    activeCity &&
-    normalize(activeCity) === normalize(city.city)
-      ? "bg-blue-200 border-blue-500 scale-105"
-      : "border-gray-100 bg-white"
-  }
+  flex flex-col items-center justify-center transition truncate
+  ${activeCity &&
+                      normalize(activeCity) === normalize(city.city)
+                      ? "bg-blue-200 border-blue-500 scale-105"
+                      : "border-gray-100 bg-white"
+                    }
 `}
 
                 >
@@ -1416,13 +1433,9 @@ const HomePage: React.FC<HomePageProps> = ({
                 .map((course, index) => (
                   <div
                     key={index}
-                    onClick={() =>
-                      setView({
-                        page: "course-detail",
-                        courseIds: course.courseIds,   // ✅ array of DB IDs
-                        courseKey: course.courseKey
-                      })
-                    }
+                   onClick={() => navigate(`/course/${course.courseKey}`)}
+
+
                     className="
               min-w-[260px] snap-start p-5 cursor-pointer
               bg-white rounded-2xl border border-gray-200 
@@ -1487,7 +1500,7 @@ const HomePage: React.FC<HomePageProps> = ({
                         </span>
                       </div>
 
-                    </div> 
+                    </div>
 
                     {/* Footer */}
                     <div className="flex justify-between items-center pt-3 border-t">
@@ -1517,7 +1530,8 @@ const HomePage: React.FC<HomePageProps> = ({
             {/* VIEW ALL */}
             <div className="flex justify-center mt-10">
               <button
-                onClick={() => setView({ page: "courses" })}
+               onClick={() => navigate("/courses")}
+
                 className="bg-[#0A225A] text-white px-10 py-3 text-lg rounded-full font-semibold shadow-lg hover:bg-[#071a3f] transition"
               >
                 View All Courses
@@ -1652,7 +1666,7 @@ const HomePage: React.FC<HomePageProps> = ({
         })()}
 
         {/* Exam Filters */}
-       
+
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -1678,7 +1692,8 @@ const HomePage: React.FC<HomePageProps> = ({
                 .map((exam) => (
                   <div
                     key={exam.id}
-                    onClick={() => setView({ page: "exam-detail", examId: exam.id })}
+                    onClick={() => navigate(`/exam/${exam.id}`)}
+
                     className="
                 min-w-[290px] max-w-[290px]
                 bg-white border border-gray-200 rounded-xl 
@@ -1931,9 +1946,8 @@ const HomePage: React.FC<HomePageProps> = ({
             {BLOG_POSTS_DATA.slice(0, 3).map((post, index) => (
               <div
                 key={post.id}
-                onClick={() =>
-                  setView({ page: 'blog-detail', postId: post.id } as any)
-                }
+                onClick={() => navigate(`/blog/${post.id}`)}
+
                 className="
             min-w-[85%] snap-start
             bg-white rounded-2xl shadow-md border border-slate-100 
@@ -1979,9 +1993,8 @@ const HomePage: React.FC<HomePageProps> = ({
             {BLOG_POSTS_DATA.slice(0, 3).map((post, index) => (
               <AnimatedContainer key={post.id} delay={index * 80}>
                 <div
-                  onClick={() =>
-                    setView({ page: 'blog-detail', postId: post.id } as any)
-                  }
+                onClick={() => navigate(`/blog/${post.id}`)}
+
                   className="
               bg-white rounded-2xl shadow-md border border-slate-100 
               overflow-hidden cursor-pointer flex flex-col h-full
@@ -2025,11 +2038,12 @@ const HomePage: React.FC<HomePageProps> = ({
           {/* VIEW ALL BUTTON */}
           <div className="text-center mt-10">
             <button
-              onClick={() => setView({ page: 'blog' })}
+            onClick={() => navigate("/blog")}
+
               className="
           inline-flex items-center justify-center px-6 py-2.5 rounded-full 
           border border-[#1f4fa8] text-[#1f4fa8] text-sm font-semibold 
-          hover:bg-[#1f4fa8]/5
+          hover:bg-[#1f4fa8]/
         "
             >
               View all articles
@@ -2054,7 +2068,7 @@ const HomePage: React.FC<HomePageProps> = ({
             </p>
           </div>
 
-          {/* Two Column Layout */}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pb-4 md:pb-0">
 
             {/* LEFT SIDE IMAGE + CONTACT INFO CARD */}

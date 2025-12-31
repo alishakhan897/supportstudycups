@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import type { View, College } from "../types";
 import { useOnScreen } from "../hooks/useOnScreen";
+import { useNavigate } from "react-router-dom"; 
 
 /* ================= ANIMATION ================= */
 
@@ -42,8 +43,9 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   setView,
   colleges,
   initialStream,
-}) => {
-  const [searchTerm, setSearchTerm] = useState("");
+}) => { 
+   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState(""); 
   const [selectedStream, setSelectedStream] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
 
@@ -387,7 +389,7 @@ col.rawScraped.courses.forEach((cr) => {
   {/* TAGS */}
   <div className="flex justify-between mb-4">
     <span className="px-3 py-1 text-xs bg-slate-100 rounded-full font-semibold">
-      Full Time
+      {course.level || "N/A"}
     </span>
     <span className="px-3 py-1 text-xs bg-slate-100 rounded-full font-semibold">
       {course.duration || "N/A"}
@@ -448,9 +450,16 @@ col.rawScraped.courses.forEach((cr) => {
     <span className="text-[12px] font-semibold text-blue-700">
       Course Overview →
     </span>
-    <span className="px-4 py-2 bg-green-500 text-white text-xs rounded-full font-semibold">
-      View Details
-    </span>
+  <button
+  onClick={(e) => {
+    e.stopPropagation();  // Prevent card click
+    navigate(`/course/${course.courseKey}`);
+  }}
+ className="px-3 py-2 bg-green-500 text-white text-xs rounded-full font-semibold hover:bg-green-600 transition-all"
+>
+  View Details →
+</button>
+
   </div>
 </div>
 

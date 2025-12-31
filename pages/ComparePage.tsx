@@ -1,11 +1,12 @@
 import React from "react";
 import type { View, College } from "../types";
+import { useNavigate } from "react-router-dom";
 
 interface ComparePageProps {
-  compareList: number[];
-  allColleges: College[];
-  setView: (view: View) => void;
+  compareList: string[];
+  colleges: College[];
 }
+
 
 /* ================= SAFE VALUE READER ================= */
 const getValue = (obj: any, path: string[]) => {
@@ -48,12 +49,13 @@ const getPlacementPercentage = (college: any) => {
 
 const ComparePage: React.FC<ComparePageProps> = ({
   compareList,
-  allColleges,
-  setView,
+  colleges,
 }) => {
-  const selectedColleges = allColleges.filter(c =>
-    compareList.includes(c.id)
-  );
+  const navigate = useNavigate();
+  const selectedColleges = colleges.filter(c =>
+  compareList.includes(String(c.id))
+);
+
 
   const comparisonFields = [
     { label: "Rating", path: ["rating"] },
@@ -83,7 +85,7 @@ const ComparePage: React.FC<ComparePageProps> = ({
           Please select at least 2 colleges to compare.
         </p>
         <button
-          onClick={() => setView({ page: "listing" })}
+          onClick={() => navigate("/colleges")}
           className="px-6 py-3 bg-[--primary-medium] text-white font-semibold rounded-lg"
         >
           Add College

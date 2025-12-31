@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
 import type { View } from "../types";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface ExamDetailPageProps {
   examId: number;
   setView: (view: View) => void;
 }
 
-const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId, setView }) => {
+const ExamDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const examId = Number(id);
+
   const [exam, setExam] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("Overview");
   const [loading, setLoading] = useState(true);
@@ -38,7 +43,8 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId, setView }) => {
       <div className="text-center py-20">
         <h2 className="text-xl font-bold">Exam not found</h2>
         <button
-          onClick={() => setView({ page: "exams" })}
+        onClick={() => navigate("/exams")}
+
           className="mt-4 px-6 py-2 bg-blue-600 text-white rounded"
         >
           Back to Exams
@@ -61,7 +67,8 @@ const ExamDetailPage: React.FC<ExamDetailPageProps> = ({ examId, setView }) => {
       <div className="relative bg-[var(--primary-dark)] mt-5 pt-5 text-white">
         <div className="max-w-7xl mx-auto px-4 py-10">
           <button
-            onClick={() => setView({ page: "exams" })}
+           onClick={() => navigate("/exams")}
+
             className="text-sm mb-4 underline"
           >
             ← Back to Exams

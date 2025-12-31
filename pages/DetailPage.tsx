@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import type { View, College } from "../types";
 import { getCollegeImages } from "../collegeImages";
-
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
   Monitor,
@@ -38,12 +39,12 @@ const FACILITY_ICON_MAP: Record<string, React.ReactNode> = {
 
 
 interface DetailPageProps {
-  college: College;
-  setView: (view: View) => void;
-  compareList: number[];
-  onCompareToggle: (id: number) => void;
+  colleges: College[];
+  compareList: string[];
+  onCompareToggle: (id: string) => void;
   onOpenApplyNow: () => void;
 }
+
 
 type CollegeDetail = {
   overview?: string;
@@ -94,14 +95,23 @@ const buildRankingTable = (rankingData: any[]) => {
 
   return { years, rows: rowsMap };
 };
+const buildCourseSlug = (name: string) => {
+  return encodeURIComponent(
+    name
+      .toLowerCase()
+      .trim()
+  );
+};
 
 const DetailPage: React.FC<DetailPageProps> = ({
-  college,
+  colleges,
   compareList,
   onCompareToggle,
   setView,
   onOpenApplyNow,
 }) => {
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("Overview");
   const [detail, setDetail] = useState<CollegeDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -123,6 +133,26 @@ const DetailPage: React.FC<DetailPageProps> = ({
   const [showAllDislikes, setShowAllDislikes] = useState(false);
   const [showAllStudentLikes, setShowAllStudentLikes] = useState(false);
   const [showAllStudentDislikes, setShowAllStudentDislikes] = useState(false);
+
+
+  const { slugId } = useParams<{ slugId: string }>();
+  const collegeId = useMemo(() => {
+    if (!slugId) return null;
+    return slugId.split("--").pop();
+  }, [slugId]);
+  const id = collegeId;
+
+  const college = useMemo(
+    () => colleges.find(c => String(c.id) === String(id)),
+    [colleges, id]
+  );
+  if (!college) {
+    return (
+      <div className="mt-40 text-center text-slate-500">
+        College not found
+      </div>
+    );
+  }
 
 
   const getInitials = (name: string) => {
@@ -300,7 +330,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
 
   const handleDownloadBrochure = (collegeId: number) => {
     window.open(
-      `http://localhost:5000/api/colleges/${collegeId}/brochure`,
+      `https://studycupsbackend.onrender.com/api/colleges/${collegeId}/brochure`,
       "_blank"
     );
   };
@@ -351,21 +381,18 @@ const DetailPage: React.FC<DetailPageProps> = ({
               >
                 {/* Course Name */}
                 <h3
-                  onClick={() =>
-                    setView({
-                      page: "course-detail",
-                      courseIds: [course.id],
-                      courseKey: course.name
-                    })
-                  }
+                  onClick={() => {
+                    const slug = buildCourseSlug(course.name);
+                    navigate(`/course/${slug}`);
+                  }}
                   className="
-          text-lg
-          md:text-xl
-          font-bold
-          text-blue-900
-          hover:underline
-          cursor-pointer
-        "
+    text-lg
+    md:text-xl
+    font-bold
+    text-blue-900
+    hover:underline
+    cursor-pointer
+  "
                 >
                   {course.name}
                 </h3>
@@ -426,17 +453,16 @@ const DetailPage: React.FC<DetailPageProps> = ({
                       {course.fees || "N/A"}
                     </p>
 
-                    <p className="text-xs text-blue-600 cursor-pointer hover:underline"
-                      onClick={() =>
-                        setView({
-                          page: "course-detail",
-                          courseIds: [course.id],
-                          courseKey: course.name
-                        })
-                      }
+                    <p
+                      className="text-xs text-blue-600 cursor-pointer hover:underline"
+                      onClick={() => {
+                        const slug = buildCourseSlug(course.name);
+                        navigate(`/course/${slug}`);
+                      }}
                     >
                       Check Detailed Fees ›
                     </p>
+
                   </div>
                 </div>
 
@@ -979,12 +1005,12 @@ const DetailPage: React.FC<DetailPageProps> = ({
                             : section.bullets.slice(0, 6)
                           ).map((b: string, i: number) => (
                             <li
-  key={i}
-  className="break-words"
-  style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}
->
-  {b}
-</li>
+                              key={i}
+                              className="break-words"
+                              style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}
+                            >
+                              {b}
+                            </li>
 
                           ))}
                         </ul>

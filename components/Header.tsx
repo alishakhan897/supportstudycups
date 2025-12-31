@@ -5,30 +5,24 @@ import type { View, College } from "../types";
 
 
 interface HeaderProps {
-  setView: (view: View) => void;
   onOpenApplyNow: () => void;
-  colleges: College[];
-  view: View;
 }
 
-const Header: React.FC<HeaderProps> = ({ setView, onOpenApplyNow, view }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenApplyNow }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const activePage = location.pathname === "/" ? view?.page : location.pathname;
+ const activePage = location.pathname;
 
 
-  const tabClass = (tab: string) =>
-    `relative pb-1 transition ${activePage === tab
+
+ const tabClass = (path: string) =>
+  `relative pb-1 transition ${
+    activePage === path
       ? "text-[#0F2D52] font-bold after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#0F2D52]"
       : "text-[#0F2D52] hover:text-[#062042]"
-    }`;
+  }`;
 
-
-  const handleNavClick = (view: View) => {
-    navigate("/");
-    setTimeout(() => setView(view), 20);
-  };
 
   return (
   <header 
@@ -67,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ setView, onOpenApplyNow, view }) => {
 
           {/* LOGO */}
           <div
-            onClick={() => handleNavClick({ page: "home" })}
+            onClick={() => navigate("/")}
             className="flex items-center gap-2 cursor-pointer"
           >
             <img src="/logos/StudyCups.png" className="h-8 w-auto md:h-10" />
@@ -77,37 +71,39 @@ const Header: React.FC<HeaderProps> = ({ setView, onOpenApplyNow, view }) => {
           <nav className="hidden lg:flex items-center space-x-6 text-base font-semibold text-[#0F2D52]">
 
             <button
-              onClick={() => handleNavClick({ page: "home" })}
-              className={tabClass("home")}
+              onClick={() => navigate("/")} className={tabClass("/") + " cursor-pointer"}
             >
               Home
             </button>
 
             <button
-              onClick={() => handleNavClick({ page: "listing" })}
-              className={tabClass("listing")}
+              onClick={() => navigate("/colleges")}
+              className={tabClass("/colleges")+" cursor-pointer"}
             >
               Colleges
             </button>
 
             <button
-              onClick={() => handleNavClick({ page: "courses" })}
-              className={tabClass("courses")}
+              onClick={() => navigate("/courses")} className={tabClass("/courses") + " cursor-pointer"}
             >
               Courses
             </button>
 
             <button
-              onClick={() => handleNavClick({ page: "exams" })}
-              className={tabClass("exams")}
+             onClick={() => navigate("/exams")} className={tabClass("/exams") + " cursor-pointer"}
             >
               Exams
             </button>
 
+             <button
+             onClick={() => navigate("/blog")} className={tabClass("/blog") + " cursor-pointer"}
+            >
+              Blog
+            </button>
+
           
             <button
-              onClick={() => handleNavClick({ page: "compare" })}
-              className={tabClass("compare")}
+             onClick={() => navigate("/compare")} className={tabClass("/compare") + " cursor-pointer"}
             >
               Compare
             </button>
@@ -165,15 +161,18 @@ const Header: React.FC<HeaderProps> = ({ setView, onOpenApplyNow, view }) => {
               ["Colleges", "listing"],
               ["Courses", "courses"],
               ["Exams", "exams"],
-             
+              ["Blog", "blog"],
               ["Compare", "compare"],
             ].map(([label, page]) => (
               <button
                 key={page}
-                onClick={() => {
-                  handleNavClick({ page } as View);
-                  setIsMenuOpen(false);
-                }}
+              onClick={() => {
+  navigate(
+    page === "home" ? "/" : `/${page}`
+  );
+  setIsMenuOpen(false);
+}}
+
                 className="block w-full text-left py-2 text-base font-semibold"
               >
                 {label}

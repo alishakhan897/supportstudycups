@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import type { View } from "../types";
 import { useOnScreen } from "../hooks/useOnScreen";
+import { useNavigate } from "react-router-dom";
 
 interface ExamsPageProps {
   setView: (view: View) => void;
@@ -23,7 +24,8 @@ const AnimatedCard: React.FC<{ children: React.ReactNode; delay: number }> = ({
   );
 };
 
-const ExamsPage: React.FC<ExamsPageProps> = ({ setView }) => {
+const ExamsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [exams, setExams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -189,9 +191,8 @@ const visibleNews = showAllNews
   {filteredExams.map((exam, index) => (
     <AnimatedCard key={exam.id} delay={index * 60}>
       <div
-        onClick={() =>
-          setView({ page: "exam-detail", examId: exam.id })
-        }
+        onClick={() => navigate(`/exam/${exam.id}`)}
+
         className="
           bg-white border rounded-xl p-5
           hover:shadow-lg transition cursor-pointer
