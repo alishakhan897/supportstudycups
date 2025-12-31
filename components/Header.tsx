@@ -158,7 +158,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenApplyNow }) => {
 
             {[
               ["Home", "home"],
-              ["Colleges", "listing"],
+              ["Colleges", "colleges"],
               ["Courses", "courses"],
               ["Exams", "exams"],
               ["Blog", "blog"],

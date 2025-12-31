@@ -80,7 +80,8 @@ const App: React.FC = () => {
 
   return (
   <>
-    {/* ================= HEADER (ALWAYS INSTANT) ================= */}
+    {/* ================= HEADER (ALWAYS INSTANT) ================= */} 
+
     <Header
       onOpenApplyNow={() => {
         setApplyMode("apply");
@@ -88,7 +89,8 @@ const App: React.FC = () => {
       }}
     />
 
-    {/* ================= ROUTES (NEVER BLOCKED BY LOADING) ================= */}
+    {/* ================= ROUTES (NEVER BLOCKED BY LOADING) ================= */} 
+    
     <Routes>
       <Route
         path="/"
