@@ -23,7 +23,7 @@ import DetailPage from "./pages/DetailPage";
 import type { College } from "./types";
 
 /* ===== API ===== */
-const API_BASE = "https://studycupsbackend.onrender.com/api";
+const API_BASE = "https://studycupsbackend-production.up.railway.app/api";
 
 const App: React.FC = () => {
   const [colleges, setColleges] = useState<College[]>([]);
@@ -50,8 +50,10 @@ const App: React.FC = () => {
   };
 
   const handleBrochure = () => {
-    // later: brochure download
-  };
+  setApplyMode("brochure");
+  setApplyModalOpen(true);
+};
+
 
 
 
@@ -125,6 +127,7 @@ const App: React.FC = () => {
             compareList={compareList}
             onCompareToggle={handleCompareToggle}
             onOpenApplyNow={handleApplyNow}
+             onOpenBrochure={handleBrochure}
           />
         }
       />
@@ -183,7 +186,8 @@ const App: React.FC = () => {
     />
 
     {/* ================= FOOTER ================= */}
-    <Footer />
+   <Footer exams={exams} colleges={colleges} />
+
   </>
 );
 

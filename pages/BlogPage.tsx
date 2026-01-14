@@ -93,7 +93,7 @@ const BlogPage: React.FC = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch("https://studycupsbackend.onrender.com/api/blogs");
+        const res = await fetch("https://studycupsbackend-production.up.railway.app/api/blogs");
         const json = await res.json();
         setArticles(json.data || []);
       } catch (err) {

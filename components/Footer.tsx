@@ -1,140 +1,218 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-// Social Icon SVGs for a cleaner look (using common icons)
-const SocialIcon = ({ children }) => (
-    <a
-        href="#"
-        className="text-white/70 hover:text-white transition-colors duration-200"
-        aria-label="Social Link"
-    >
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            {children}
-        </svg>
-    </a>
-);
+/* ================= TYPES ================= */
+interface FooterProps {
+  exams?: any[];
+  colleges?: any[];
+} 
+const getCollegeSlug = (college: any) => {
+  if (college.slugId) return college.slugId;
+  if (college.slug && college.id) return `${college.slug}--${college.id}`;
+  if (college.name && college.id)
+    return `${college.name.toLowerCase().replace(/\s+/g, "-")}--${college.id}`;
+  return "";
+};
 
 
-const Footer: React.FC = () => {
-    // Consolidated and reorganized sections for a better structure
-    const linkSections = {
-        "QUICK LINKS": [
-            { name: "Colleges", href: "#" },
-            { name: "Courses", href: "#" },
-            { name: "Exams", href: "#" },
-            { name: "Blog", href: "#" },
-            { name: "Compare", href: "#" },
-        ],
-        "POPULAR EXAMS": ["JEE Main", "NEET", "CAT", "GATE", "UPSC"],
-        "HELP & SUPPORT": [
-            { name: "Contact Us", href: "#" },
-            { name: "Counselling", href: "#" },
-            { name: "Terms & Conditions", href: "#" },
-            { name: "Privacy Policy", href: "#" },
-            { name: "Sitemap", href: "#" },
-        ],
-    };
+/* ================= NEWSLETTER ================= */
+const Newsletter = () => {
+  return (
+    <div className="relative z-20 -mb-24">
+      <div className="max-w-7xl mx-auto px-4">
+        <div
+          className="
+            bg-[#0B2C4D]
+            rounded-t-[36px]
+            px-6 md:px-14
+            py-12 md:py-16
+            text-white
+            shadow-[0_-18px_40px_rgba(0,0,0,0.25)]
+          "
+        >
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-[40px] font-extrabold leading-tight">
+              Subscribe To Our News Letter
+            </h2>
+            <p className="mt-2 text-sm md:text-base text-white/80">
+              Get Colleges Notification, Alerts, Exams Update and more....
+            </p>
+          </div>
 
-    return (
-        // Removed the outer pt-16/pb-20 padding and used the deep blue background directly for the footer
-        <footer className="bg-[#0A2A6C] text-white pt-10 pb-4 w-90% mx-auto mt-10 rounded-t-3xl mb-8">
-            <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="flex items-center bg-white rounded-xl px-4 h-12">
+                <span className="mr-2 text-slate-400">✉</span>
+                <input
+                  type="email"
+                  placeholder="Enter your Email id"
+                  className="w-full text-sm text-slate-700 outline-none"
+                />
+              </div>
 
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-6 gap-8 pb-10 border-b border-white/20">
+              <div className="flex items-center bg-white rounded-xl px-4 h-12">
+                <span className="mr-2 text-slate-400">📞</span>
+                <input
+                  type="tel"
+                  placeholder="Enter Your Mobile no"
+                  className="w-full text-sm text-slate-700 outline-none"
+                />
+              </div>
 
-                    {/* Column 1: Logo, About, Contact, Newsletter */}
-                    <div className="col-span-2 space-y-5 pr-4">
+              <select className="bg-white rounded-xl h-12 px-4 text-sm text-slate-600 outline-none">
+                <option>Search Courses</option>
+                <option>Engineering</option>
+                <option>Management</option>
+                <option>Medical</option>
+                <option>Design</option>
+              </select>
 
-                        {/* Logo/Name (Using the logo from the provided images) */}
-                        <div className="flex items-center space-x-2">
-                            <img
-                                src="/logos/StudyCups.png"// Placeholder for StudyCups Logo (image_afa9d9.png)
-                                alt="StudyCups Education Logo"
-                                className="h-10 w-auto"
-                            />
-                         
-                        </div>
-
-                        <p className="text-white/80 leading-relaxed text-sm max-w-sm">
-                            Your one-stop destination for finding the perfect college and course to shape your future.
-                        </p>
-
-                        <p className="text-white/80 text-sm">
-                            <span className="font-semibold">Contact:</span> +91 8081269969
-                        </p>
-
-                        {/* Social Icons */}
-                        <div className="flex space-x-4 pt-2">
-                            <SocialIcon><path d="M22.232 4.017c-.722.321-1.498.536-2.311.637.83-.5-1.498.817-1.794.817-2.348 0-4.254 1.906-4.254 4.254 0 .334.039.658.114.969-3.535-.178-6.666-1.87-8.763-4.444-.367.63-.578 1.362-.578 2.146 0 1.479.753 2.78 1.897 3.546-.7-.023-1.355-.213-1.928-.53-.001.018-.001.036-.001.054 0 2.067 1.471 3.791 3.42 4.187-.358.098-.737.151-1.127.151-.276 0-.543-.026-.803-.076.542 1.696 2.112 2.937 3.978 2.971-1.455 1.139-3.29 1.821-5.28 1.821-.343 0-.683-.021-1.015-.062 1.882 1.206 4.103 1.904 6.495 1.904C16.897 20.999 21.056 16.84 21.056 9.479c0-.144-.003-.287-.008-.429.988-.714 1.844-1.603 2.525-2.613z" /></SocialIcon>
-                            <SocialIcon><path d="M7.747 18.006c-3.13 0-5.666-2.536-5.666-5.667 0-3.13 2.536-5.667 5.666-5.667 3.13 0 5.667 2.537 5.667 5.667 0 3.13-2.537 5.667-5.667 5.667zm6.756-.732c-.173.34-.337.66-.49.957-.492.93-1.218 1.696-2.09 2.195-2.227 1.298-5.32 1.298-7.548 0-.872-.5-1.598-1.265-2.09-2.195-.153-.297-.317-.617-.49-.957h12.71z" /></SocialIcon>
-                            <SocialIcon><path d="M20.211 2h-16.422c-1.096 0-1.99.894-1.99 1.99v16.02c0 1.096.894 1.99 1.99 1.99h16.422c1.096 0 1.99-.894 1.99-1.99V3.99c0-1.096-.894-1.99-1.99-1.99zm-13.435 15.114h-2.924v-9.337h2.924v9.337zm4.512 0h-2.925v-9.337h2.925v9.337zm4.512 0h-2.925v-9.337h2.925v9.337zm4.512 0h-2.925v-9.337h2.925v9.337z" /></SocialIcon>
-                        </div>
-                    </div>
-
-                    {/* Column 2: Quick Links */}
-                    <div className="space-y-4 text-sm">
-                        <h3 className="font-bold text-white tracking-wider text-base">QUICK LINKS</h3>
-                        <ul className="space-y-2">
-                            {linkSections["QUICK LINKS"].map((item) => (
-                                <li key={item.name}>
-                                    <a href={item.href} className="text-white/70 hover:text-white transition duration-200 text-[15px]">
-                                        {item.name}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Column 3: Exams */}
-                    <div className="space-y-4 text-sm">
-                        <h3 className="font-bold text-white tracking-wider text-base">POPULAR EXAMS</h3>
-                        <ul className="space-y-2">
-                            {linkSections["POPULAR EXAMS"].map((exam) => (
-                                <li key={exam}>
-                                    <a href="#" className="text-white/70 hover:text-white transition duration-200 text-[15px]">
-                                        {exam}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Column 4: Help & Support */}
-                    <div className="space-y-4 text-sm">
-                        <h3 className="font-bold text-white tracking-wider text-base">HELP & SUPPORT</h3>
-                        <ul className="space-y-2">
-                            {linkSections["HELP & SUPPORT"].map((item) => (
-                                <li key={item.name}>
-                                    <a href={item.href} className="text-white/70 hover:text-white transition duration-200 text-[15px]">
-                                        {item.name}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                </div>
-
-                {/* Copyright Section (Lower Height) */}
-                <div className="
-                    mt-4 pt-4 
-                    flex flex-col md:flex-row 
-                    justify-between items-center 
-                    text-white/70 text-xs 
-                ">
-                    <p className="order-2 md:order-1 mt-3 md:mt-0">
-                        © {new Date().getFullYear()} StudyCups Education. All Rights Reserved.
-                    </p>
-
-                    {/* Simplified Policy Links */}
-                    <div className="order-1 md:order-2 flex space-x-4">
-                        <a href="#" className="hover:text-white transition duration-200">Terms of Use</a>
-                        <a href="#" className="hover:text-white transition duration-200">Privacy Policy</a>
-                    </div>
-                </div>
+              <button className="bg-[#FF7A66] hover:bg-[#ff6650] transition text-white font-semibold rounded-xl h-12">
+                Submit
+              </button>
             </div>
-        </footer>
-    );
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ================= FOOTER ================= */
+const Footer: React.FC<FooterProps> = ({
+  exams = [],
+  colleges = [],
+}) => {
+  /* ✅ NORMALIZE DATA (CRITICAL FIX) */
+  const examList = Array.isArray(exams) ? exams : [];
+  const collegeList = Array.isArray(colleges) ? colleges : [];
+
+  return (
+    <>
+      <Newsletter />
+  
+      <div className="bg-slate-100 px-4 py-16">
+      <footer className="bg-white border-t border-slate-200 pt-32  rounded-4xl">
+        <div className="max-w-7xl mx-auto px-6 pb-8 rounded-4xl">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-10 gap-y-6">
+
+            {/* BRAND */}
+            <div className="col-span-2 space-y-4">
+              <img src="/logos/StudyCups.png" alt="StudyCups" className="h-10" />
+
+              <p className="text-sm text-slate-600 leading-relaxed max-w-sm">
+                Empowering students to discover the right colleges, courses,
+                exams, and career paths with confidence.
+              </p>
+
+              <div className="space-y-1 text-sm">
+                <Link to="/" className="block text-blue-600 hover:underline">About StudyCups</Link>
+                <Link to="/" className="block text-blue-600 hover:underline">Contact Us</Link>
+                <Link to="/" className="block text-blue-600 hover:underline">Terms & Conditions</Link>
+                <Link to="/" className="block text-blue-600 hover:underline">Privacy Policy</Link>
+                <Link to="/" className="block text-blue-600 hover:underline">Disclaimer</Link>
+              </div>
+            </div>
+
+            {/* EXPLORE EXAMS */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3">Explore Exams</h4>
+              <ul className="space-y-1.5 text-sm text-slate-600">
+                {examList.slice(0, 6).map((exam) => (
+                  <li key={exam._id}>
+                    <Link
+                      to={`/exam/${exam.id}`}
+                      className="hover:text-blue-600"
+                    >
+                      {exam.name}
+                    </Link>
+                  </li>
+                ))}
+
+                {examList.length === 0 && (
+                  <li className="text-slate-400">Loading exam</li>
+                )}
+
+                <li>
+                  <Link to="/exams" className="text-blue-600 font-medium">
+                    View All Exams
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* TOP COLLEGES */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3">Top Colleges</h4>
+             <ul className="space-y-2 text-sm text-slate-600">
+
+                {collegeList.slice(0, 5).map((college) => (
+              <Link
+  to={`/college/${getCollegeSlug(college)}`}
+  className="
+    block
+    leading-snug
+    break-words
+    whitespace-normal
+    hover:text-blue-600
+  "
+>
+  {college.name}
+</Link>
+
+
+
+                ))}
+
+                <li>
+                  <Link to="/colleges" className="text-blue-600 font-medium">
+                    View All Colleges
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* STUDY STREAMS */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3">Study Streams</h4>
+              <ul className="space-y-1.5 text-sm text-slate-600">
+                {[
+                  "Engineering",
+                  "Management",
+                  "Medical",
+                  "Design",
+                  "IT & Software",
+                  "Law",
+                ].map((stream) => (
+                  <li key={stream}>
+                    <Link
+                      to={`/courses?stream=${encodeURIComponent(stream)}`}
+                      className="hover:text-blue-600"
+                    >
+                      {stream}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* BOTTOM BAR */}
+        <div className="border-t border-slate-200 py-4 text-sm rounded-4xl">
+          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-2 text-slate-600">
+            <p>© 2026 StudyCups</p>
+            <p>
+              Regular Helpdesk: <strong>+91 95997 49001</strong> | Online Helpdesk:{" "}
+              <strong>+91 97178 19001</strong>
+            </p>
+          </div>
+        </div>
+      </footer>
+      </div>
+    </>
+  );
 };
 
 export default Footer;

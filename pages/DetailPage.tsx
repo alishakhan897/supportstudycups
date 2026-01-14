@@ -42,7 +42,8 @@ interface DetailPageProps {
   colleges: College[];
   compareList: string[];
   onCompareToggle: (id: string) => void;
-  onOpenApplyNow: () => void;
+  onOpenApplyNow: () => void; 
+  onOpenBrochure: () => void;
 }
 
 
@@ -109,6 +110,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
   onCompareToggle,
   setView,
   onOpenApplyNow,
+  onOpenBrochure
 }) => {
   const navigate = useNavigate();
 
@@ -249,7 +251,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
   useEffect(() => {
     const fetchSuggestedColleges = async () => {
       try {
-        const res = await fetch("https://studycupsbackend.onrender.com/api/colleges?limit=20");
+        const res = await fetch("https://studycupsbackend-production.up.railway.app/api/colleges?limit=20");
         const json = await res.json();
 
         if (json.success) {
@@ -318,7 +320,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
       setLoading(true);
       try {
         const res = await fetch(
-          `https://studycupsbackend.onrender.com/api/colleges/${college.id}`
+          `https://studycupsbackend-production.up.railway.app/api/colleges/${college.id}`
         );
         const json = await res.json();
         if (json.success) setDetail(json.data);
@@ -330,7 +332,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
 
   const handleDownloadBrochure = (collegeId: number) => {
     window.open(
-      `https://studycupsbackend.onrender.com/api/colleges/${collegeId}/brochure`,
+      `https://studycupsbackend-production.up.railway.app/api/colleges/${collegeId}/brochure`,
       "_blank"
     );
   };
@@ -2429,7 +2431,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
                 </button>
 
                 <button
-                  onClick={handleDownloadBrochure}
+                   onClick={onOpenBrochure}
                   className="
       px-3 py-1.5 md:px-6 md:py-2.5
       rounded-lg
@@ -2482,7 +2484,7 @@ const DetailPage: React.FC<DetailPageProps> = ({
       </div>
 
       {/* LAYOUT */}
-      <div className="container max-w-7xl md:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container max-w-7xl md:max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
 
         <div className="lg:col-span-2">{renderTabContent()}</div>

@@ -16,6 +16,7 @@ type Filters = {
   collegeType: string;
 
   minRating: number;
+  region?: string; 
 };
 
 interface ListingPageProps {
@@ -45,7 +46,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   setFilters,
   onClearFilters,
   forceShow = false,
-  colleges,
+  colleges, 
+  region: undefined,
 }) => {  
   
   const streams = useMemo(() => {
@@ -263,20 +265,22 @@ const ListingPage: React.FC<ListingPageProps> = ({
   const [showMobileFilters, setShowMobileFilters] = useState(false); 
   
 
-  useEffect(() => {
-  // 1️⃣ Apply filters coming via props (if any)
+useEffect(() => {
   if (initialFilters) {
-    setFilters((p) => ({ ...p, ...initialFilters }));
+    setFilters(p => ({ ...p, ...initialFilters }));
   }
 
-  // 2️⃣ Apply filters coming via router state (HomePage / City click)
   if (location.state && typeof location.state === "object") {
-    setFilters((p) => ({
+    const navState = location.state as any;
+
+    setFilters(p => ({
       ...p,
-      ...location.state,
+      ...navState,      // college, city, course
+      region: navState.region ?? undefined, // ✅ REGION SAFE
     }));
   }
 }, [initialFilters, location.state]);
+
 
 
  const normalize = (s?: string) =>
@@ -343,7 +347,15 @@ const filteredColleges = useMemo(() => {
     if (filters.minRating > 0) {
       const rating = Number(c.rating);
       if (!rating || rating < filters.minRating) return false;
-    }
+    } 
+    // 🔹 REGION FILTER (HOME PAGE CARDS)
+if (filters.region) {
+  const location = c.location?.toLowerCase() || "";
+  if (!location.includes(filters.region.toLowerCase())) {
+    return false;
+  }
+}
+
 
     return true;
   });

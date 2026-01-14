@@ -210,7 +210,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
     // -------------------------
     try {
       const res = await fetch(
-        "https://academiafest-backend.onrender.com/api/student",
+        "https://studycupsbackend-production.up.railway.app/api/student",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

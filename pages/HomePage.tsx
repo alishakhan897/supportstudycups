@@ -4,8 +4,7 @@ import { PARTNER_LOGOS } from "../logos";
 import CollegeCard from "../components/CollegeCard";
 import { lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-
-
+import Lenis from '@studio-freight/lenis';
 
 import {
 
@@ -17,28 +16,90 @@ import { useOnScreen } from "../hooks/useOnScreen";
 import ContactForm from "../components/ContactForm";
 
 
+const DUMMY_NEWS = [
+  {
+    id: 1,
+    title: "RSB Chennai PGDM Admission 2026 Begins",
+    excerpt:
+      "RSB Chennai has opened applications for its flagship PGDM programme for the 2026 intake.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1588072432836-e10032774350",
+    date: "Dec 15, 2025",
+    author: "StudyCups Editorial Team",
+    category: "Admission News",
+  },
+  {
+    id: 3,
+    title: "IIM Visakhapatnam Admission 2026 Open",
+    imageUrl: "https://images.unsplash.com/photo-1562774053-701939374585",
+    date: "Dec 13, 2025",
+  },
+  {
+    id: 4,
+    title: "Top MBA Colleges Accepting CAT 2025 Scores",
+    excerpt:
+      "List of top MBA colleges in India accepting CAT 2025 scores.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1",
+    date: "Dec 12, 2025",
+    author: "StudyCups Experts",
+    category: "Articles",
+  },
+  {
+    id: 5,
+    title: "How to Prepare for Board Exams Effectively",
+    excerpt:
+      "Proven strategies and study plans to score high in board exams.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
+    date: "Dec 11, 2025",
+    author: "StudyCups Editorial Team",
+    category: "Articles",
+  },
+ 
+  
+]; 
+
+const loopingNews = [...DUMMY_NEWS, ...DUMMY_NEWS];
+
+const PRIORITY_CITIES = [
+ "Delhi NCR",
+  "Bangalore",
+  "Mumbai",
+  "Chennai",
+  "Pune",
+  "Kolkata",
+  "Hyderabad",
+  "Ahmedabad",
+  "Coimbatore",
+  "Dehradun",
+  "Lucknow"
+];
+
+
 
 const useScroll = () => {
   const [scrollY, setScrollY] = useState(0);
+  const ticking = useRef(false);
 
   useEffect(() => {
-    let ticking = false;
-
     const onScroll = () => {
-      if (!ticking) {
+      if (!ticking.current) {
         window.requestAnimationFrame(() => {
           setScrollY(window.scrollY);
-          ticking = false;
+          ticking.current = false;
         });
-        ticking = true;
+        ticking.current = true;
       }
     };
 
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
   return scrollY;
 };
+
 
 const FadeSection = ({ children, delay = 0 }) => {
   const [ref, visible] = useOnScreen<HTMLDivElement>({ threshold: 0.25 });
@@ -152,6 +213,77 @@ const extractCourses = (colleges = []) => {
   return Array.from(map.values());
 };
 
+// src/constants/regionMap.ts
+export const REGION_MAP = {
+  "Delhi NCR": {
+    cities: [
+      "Delhi",
+      "New Delhi",
+      "Noida",
+      "Greater Noida",
+      "Gurgaon",
+      "Faridabad",
+      "Ghaziabad",
+      "Hauz Khas",
+      "Badli",
+      "Alpha Greater Noida",
+      "PitamPura",
+      "Sector 62",
+      "Paschim Vihar",
+      "Jamia Nagar",
+      "Sector 125",
+      "Sector 5 Rohini",
+      "Tugalkabad",
+      "Dwarka",
+      "I A Surajpur",
+      "Malka Ganj",
+      "Patel Nagar",
+      
+
+    ]
+  },
+
+  "Uttar Pradesh": {
+    cities: ["Lucknow", "Kanpur", "Varanasi", "Agra", "Prayagraj"]
+  },
+
+  "Rajasthan": {
+    cities: ["Jaipur", "Udaipur", "Jodhpur", "Kota"]
+  },
+
+  "Punjab": {
+    cities: ["Chandigarh", "Amritsar", "Ludhiana", "Jalandhar"]
+  },
+
+  "Himachal Pradesh": {
+    cities: ["Shimla", "Solan", "Dharamshala"]
+  },
+
+  "Uttarakhand": {
+    cities: ["Dehradun", "Haridwar", "Roorkee"]
+  },
+
+  "Jammu & Kashmir": {
+    cities: ["Jammu", "Srinagar"]
+  },
+
+  "Odisha": {
+    cities: ["Bhubaneswar", "Cuttack", "Sambalpur"]
+  },
+
+  "Maharashtra": {
+    cities: ["Mumbai", "Pune", "Nagpur"]
+  },
+
+  "Karnataka": {
+    cities: ["Bangalore", "Bengaluru", "Mysore"]
+  },
+
+  "Tamil Nadu": {
+    cities: ["Chennai", "Coimbatore", "Madurai"]
+  }
+};
+
 
 const HomePage: React.FC<HomePageProps> = ({
 
@@ -159,10 +291,10 @@ const HomePage: React.FC<HomePageProps> = ({
 
   exams,
 
-}) => { 
+}) => {
   useEffect(() => {
- 
-}, [colleges, exams]);
+
+  }, [colleges, exams]);
 
   const navigate = useNavigate();
   const [selectedStream, setSelectedStream] = useState<string | null>(null);
@@ -187,32 +319,32 @@ const HomePage: React.FC<HomePageProps> = ({
 
   const scrollY = useScroll();
 
-  const heroTranslate = Math.min(scrollY * 0.5, 160); // image moves upward  
-  const heroOpacity = Math.max(1 - scrollY / 400, 0); 
+  const heroTranslate = Math.min(scrollY * 0.18, 60);
+  // image moves upward 
 
   const collegeMatchesStream = (college: any, selectedStream: string) => {
-  if (!selectedStream || selectedStream === "All Streams") return true;
+    if (!selectedStream || selectedStream === "All Streams") return true;
 
-  const stream = college?.stream; // ✅ TOP LEVEL
+    const stream = college?.stream; // ✅ TOP LEVEL
 
-  if (!stream) return false;
+    if (!stream) return false;
 
-  if (Array.isArray(stream)) {
-    return stream.some(
-      s =>
-        s.toLowerCase().trim() ===
-        selectedStream.toLowerCase().trim()
-    );
-  }
+    if (Array.isArray(stream)) {
+      return stream.some(
+        s =>
+          s.toLowerCase().trim() ===
+          selectedStream.toLowerCase().trim()
+      );
+    }
 
-  return (
-    typeof stream === "string" &&
-    stream.toLowerCase().trim() ===
+    return (
+      typeof stream === "string" &&
+      stream.toLowerCase().trim() ===
       selectedStream.toLowerCase().trim()
-  );
-};
+    );
+  };
 
-
+  
 
   const extractCityState = (location?: string) => {
     if (!location || typeof location !== "string") return null;
@@ -223,7 +355,36 @@ const HomePage: React.FC<HomePageProps> = ({
       city: parts[0],
       state: parts[1] || null,
     };
-  };
+  }; 
+  const normalize = (s = "") =>
+  s.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+  const resolveRegion = (city?: string) => {
+  if (!city) return null;
+
+  const cityKey = normalize(city);
+
+  for (const region in REGION_MAP) {
+    const cities = REGION_MAP[region].cities;
+    if (cities.some(c => normalize(c) === cityKey)) {
+      return region;
+    }
+  }
+
+  return null;
+};
+const regionList = useMemo(() => {
+  const set = new Set<string>();
+
+  (Array.isArray(colleges) ? colleges : []).forEach(college => {
+    const parsed = extractCityState(college?.location);
+    if (!parsed?.city) return;
+
+    const region = resolveRegion(parsed.city);
+    if (region) set.add(region);
+  });
+
+  return Array.from(set);
+}, [colleges]);
 
 
 
@@ -265,6 +426,21 @@ const HomePage: React.FC<HomePageProps> = ({
 
     return Array.from(map.values());
   }, [colleges]);
+   
+  const stateList = useMemo(() => {
+  const set = new Set<string>();
+
+  cityStateList.forEach(item => {
+    if (item.state) {
+      set.add(item.state.trim());
+    }
+  });
+
+  return Array.from(set);
+}, [cityStateList]);
+useEffect(() => {
+  setFilteredStates(stateList);
+}, [stateList]);
 
 
   const [animatedCollegeWordIndex, setAnimatedCollegeWordIndex] = useState(0);
@@ -276,7 +452,8 @@ const HomePage: React.FC<HomePageProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedtopcollge, setSelectedtopcollge] = useState("");
   const [selectedExamFilter, setSelectedExamFilter] = useState("All");
-  const [filteredCities, setFilteredCities] = useState(cityStateList);
+ const [filteredStates, setFilteredStates] = useState<string[]>([]);
+
 
 
   const cityRefs = useMemo(() => {
@@ -286,18 +463,6 @@ const HomePage: React.FC<HomePageProps> = ({
     });
     return refs;
   }, [cityStateList]);
-
-
-
-
-
-
-
-
-
-
-
-
 
   // 1️⃣ Home page ke liye colleges limit karo
   const limitedColleges = useMemo(() => {
@@ -310,6 +475,34 @@ const HomePage: React.FC<HomePageProps> = ({
     if (!limitedColleges || limitedColleges.length === 0) return [];
     return extractCourses(limitedColleges);
   }, [limitedColleges]);
+
+   
+  const normalizeName = (s = "") =>
+  s.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");;
+
+const orderStatesLikeCollegeApply = (states: string[]) => {
+  const map = new Map(
+    states.map(s => [normalizeName(s), s])
+  );
+
+  const priority: string[] = [];
+  const others: string[] = [];
+
+  // 1️⃣ priority order preserve karo
+  PRIORITY_CITIES.forEach(p => {
+    const key = normalizeName(p);
+    if (map.has(key)) {
+      priority.push(map.get(key)!);
+      map.delete(key);
+    }
+  });
+
+  // 2️⃣ baaki A–Z
+  others.push(...Array.from(map.values()).sort((a, b) => a.localeCompare(b)));
+
+  return [...priority, ...others];
+};
+
 
 
 
@@ -385,96 +578,98 @@ const HomePage: React.FC<HomePageProps> = ({
       state: heroFilters,
     });
   };
+  
+  function orderCities(cities) {
+  const priority = [];
+  const others = [];
 
+  cities.forEach(city => {
+    if (PRIORITY_CITIES.includes(city.name)) {
+      priority.push(city);
+    } else {
+      others.push(city);
+    }
+  });
 
-  const normalize = (str: string) =>
-    str.toLowerCase().replace(/\s+/g, "").replace(/\./g, "");
+  // Optional: baaki cities A–Z
+  others.sort((a, b) => a.name.localeCompare(b.name));
 
+  return [...priority, ...others];
+}
+
+ const orderedStates = useMemo(
+  () => orderStatesLikeCollegeApply(filteredStates),
+  [filteredStates]
+);
 
   const handleCitySearch = () => {
-    const value = normalize(query.trim());
+  const value = normalize(query.trim());
 
-    if (!value) {
-      setActiveCity(null);
-      setFilteredCities(cityStateList);
-      setError("");
-      return;
-    }
+  // EMPTY → ALL STES
+  if (!value) {
+    setFilteredStates(stateList);
+    setError("");
+    return;
+  }
 
-    // 1️⃣ CITY MATCH
-    const cityMatch = cityStateList.find(
-      c => normalize(c.city) === value
-    );
+  // STATE MATCH
+  const matchedStates = stateList.filter(state =>
+    normalize(state).includes(value)
+  );
 
-    if (cityMatch) {
-      setActiveCity(cityMatch.city);
-      setFilteredCities(cityStateList);
-      setError("");
+  // CITY MATCH → STATE nikaalo
+  const cityMatchedStates = cityStateList
+    .filter(c => normalize(c.city).includes(value))
+    .map(c => c.state)
+    .filter(Boolean) as string[];
 
-      const ref = cityRefs[cityMatch.city];
-      ref?.current?.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
-      return;
-    }
+  const finalStates = Array.from(
+    new Set([...matchedStates, ...cityMatchedStates])
+  );
 
-    // 2️⃣ STATE MATCH (🔥 FIXED)
-    const stateCities = cityStateList.filter(
-      c => c.state && normalize(c.state) === value
-    );
+  if (finalStates.length === 0) {
+    setError("No state found");
+    return;
+  }
 
-    if (stateCities.length > 0) {
-      setFilteredCities(stateCities);
-      setActiveCity("");
-      setError("");
-      return;
-    }
+  setFilteredStates(finalStates);
+  setError("");
+};
 
-    // ❌ NO MATCH
-    setError("No city found");
-  };
 
 
 
   const dynamicStreams = useMemo(() => {
-  const set = new Set<string>();
+    const set = new Set<string>();
 
-  (Array.isArray(colleges) ? colleges : []).forEach(college => {
-    const stream = college?.stream; // ✅ FIX
+    (Array.isArray(colleges) ? colleges : []).forEach(college => {
+      const stream = college?.stream; // ✅ FIX
 
-    if (Array.isArray(stream)) {
-      stream.forEach(s => {
-        if (typeof s === "string" && s.trim()) set.add(s.trim());
-      });
-    } else if (typeof stream === "string" && stream.trim()) {
-      set.add(stream.trim());
-    }
-  });
+      if (Array.isArray(stream)) {
+        stream.forEach(s => {
+          if (typeof s === "string" && s.trim()) set.add(s.trim());
+        });
+      } else if (typeof stream === "string" && stream.trim()) {
+        set.add(stream.trim());
+      }
+    });
 
-  return Array.from(set).sort();
-}, [colleges]);
+    return Array.from(set).sort();
+  }, [colleges]);
 
 
 
   const filteredColleges = useMemo(() => {
-  if (!Array.isArray(colleges)) return [];
+    if (!Array.isArray(colleges)) return [];
 
-  // ✅ FIRST FILTER
-  const filtered = colleges.filter(college =>
-    collegeMatchesStream(college, selectedStream || "All Streams")
-  );
+    // ✅ FIRST FILTER
+    const filtered = colleges.filter(college =>
+      collegeMatchesStream(college, selectedStream || "All Streams")
+    );
 
-  // ✅ THEN LIMIT
-  return filtered.slice(0, 8);
-}, [colleges, selectedStream]);
-
-
-
-
-
-
+    // ✅ THEN LIMIT
+    return filtered.slice(0, 8);
+  }, [colleges, selectedStream]);
 
   const whyChooseUsFeatures = [
     {
@@ -815,269 +1010,269 @@ const HomePage: React.FC<HomePageProps> = ({
     });
     return ["All", ...Array.from(s)];
   }, [courses]);
+const HOME_REGIONS = [
+  "Delhi NCR",
+  "Uttar Pradesh",
+  "Rajasthan",
+  "Punjab",
+  "Uttarakhand",
+  "Himachal Pradesh",
+  "Odisha"
+];
+
+const visibleRegions = regionList.slice(0, 7);
+
 
 
   return (
 
     <div >
+    <section className="relative w-full h-[550px] max-md:h-[260px] overflow-hidden">
+  {/* BACKGROUND IMAGE (RIGHT SIDE ONLY) */}
+  <div
+    className="absolute inset-0"
+    style={{
+      backgroundImage:
+        "url('https://res.cloudinary.com/alishakhan987/image/upload/v1768388043/image_luqpxl.png')",
+      backgroundRepeat: "no-repeat",
+      backgroundSize: "contain",
+      backgroundPosition: "right center",
+    }}
+  />
+
+  {/* CONTENT WRAPPER */}
+<div className="relative z-10 h-full flex items-center">
+  <div className="max-w-7xl w-full mx-auto px-6 md:px-8">
+    {/* LEFT CONTENT */}
+    <div className="max-w-xl">
+      {/* HEADING */}
+     <h1 className="text-slate-900 font-extrabold tracking-tight
+               text-[28px] leading-[38px]
+               md:text-[44px] md:leading-[58px]">
+  Explore Top Colleges,
+  <br />
+  Courses &{" "}
+  <span className="text-[#F4A71D] inline-block min-w-[140px]">
+    {currentWord}
+  </span>
+</h1>
 
 
+      {/* SUBTEXT */}
+      <p className="text-slate-600 mt-4 text-sm md:text-base font-medium max-w-md">
+        Search 1000+ colleges, exams, check fees & discover your future.
+      </p>
 
-      <section
-        className="
-    relative w-full h-[550px] max-md:h-[400px] overflow-hidden flex items-center justify-center
+      {/* SEARCH BAR */}
+     <form
+  onSubmit={handleSearch}
+  className="
+    mt-8
+    hidden md:flex
+    items-center
+    w-full max-w-xl
+    bg-white
+    border border-slate-200
+    rounded-full
+    shadow-md
+    overflow-hidden
   "
-        style={{
-          transform: `translateY(${heroTranslate}px)`,
-          transition: "transform 0.05s linear",
-        }}
-      >
+>
+  {/* College Input */}
+  <input
+    type="text"
+    name="college"
+    placeholder="College Name"
+    value={heroFilters.college}
+    onChange={handleFilterChange}
+    className="
+      flex-1
+      px-5 py-4
+      text-sm md:text-base
+      outline-none
+      text-slate-800
+      placeholder-slate-400
+    "
+  />
 
-        {/* BACKGROUND SLIDER (UNCHANGED) */}
-        <div
-          className="absolute inset-0 flex"
-          style={{
-            width: "200%",
-            animation: "scrollX 20s linear infinite",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              backgroundImage:
-                "url('https://www.pixelstalk.net/wp-content/uploads/2016/10/College-Wallpapers-HD-1920x1080-620x349.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
+  {/* Divider */}
+  <div className="w-px h-8 bg-slate-200"></div>
 
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              backgroundImage:
-                "url('https://www.pixelstalk.net/wp-content/uploads/2016/10/HD-download-college-wallpapers.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-        </div>
+  {/* City Input */}
+  <input
+    type="text"
+    name="city"
+    placeholder="City"
+    value={heroFilters.city}
+    onChange={handleFilterChange}
+    className="
+      flex-1
+       py-4
+      text-sm md:text-base
+      outline-none
+      text-slate-800
+      placeholder-slate-400
+    "
+  />
 
-        {/* DARK BG LAYER */}
-        <div className="absolute inset-0 bg-black/30"></div>
+  {/* Search Button */}
+  <button
+    type="submit"
+    className="
+      px-8 py-4
+      bg-[#0F6BC9]
+      text-white
+      font-semibold
+      text-sm md:text-base
+      hover:bg-[#0c59a3]
+      transition-colors
+      whitespace-nowrap
+    "
+  >
+    Search
+  </button>
+</form>
 
-        {/* GLASS CARD */}
-        <div
-          className="relative z-10 w-[92%] max-w-4xl text-center px-6 py-8 md:py-10 rounded-3xl 
-               bg-white/4 backdrop-transparent-[30px] border border-white/40 shadow-xl"
-          style={{
-            opacity: heroOpacity,
-            transform: `translateY(${scrollY * 0.2}px)`,
-            transition: "all linear",
-          }}
-        >
+    </div>
+  </div>
+</div>
 
-
-          <h1 className="
-       text-white font-extrabold
-      text-[20px] leading-[36px] pt-6
-      md:text-[30px] md:leading-[58px]
-    ">
-            <span> Explore Top Colleges, Courses & </span>
-
-            <span >
-              {currentWord}
-              <span className="inline-block w-[2px] h-8 bg-[#F4A71D] ml-1 animate-pulse md:h-10"></span>
-            </span>
-          </h1>
-
-
-          {/* SUBTEXT */}
-          <p className="text-white/80 mt-2 text-sm md:text-base font-medium max-w-2xl mx-auto">
-            Search 1000+ colleges, exams, check fees & discover your future.
-          </p>
-
-          {/* SEARCH BAR */}
-          <form
-            onSubmit={handleSearch}
-            className="
-        mt-7 w-full max-w-3xl mx-auto flex overflow-hidden
-        rounded-xl md:rounded-full shadow-2xl bg-white grid grid-row-3 md:grid-cols-[1fr_1fr_auto] 
-      "
-          >
-            <input
-              type="text"
-              name="college"
-              placeholder="College Name"
-              value={heroFilters.college}
-              onChange={handleFilterChange}
-              className="flex-1 px-5 py-3 outline-none text-gray-800 placeholder-gray-500 text-sm md:text-base"
-            />
-
-            <input
-              type="text"
-              name="city"
-              placeholder="City"
-              value={heroFilters.city}
-              onChange={handleFilterChange}
-              className="
-          flex-1 px-5 py-3 outline-none border-x border-gray-200 
-          text-gray-800 placeholder-gray-500 text-sm md:text-base
-        "
-            />
-
-            <button
-              type="submit"
-              className="
-          bg-[#0F6BC9] px-8 py-3 text-white font-semibold
-          hover:bg-[#0c59a3] text-sm md:text-base
-        "
-            >
-              Search
-            </button>
-          </form>
-
-
-        </div>
-      </section>
-
+</section>
 
 
       {/* -------------------------------------------------- */}
       {/* TOP COURSES / STUDY GOAL (Image 1 middle row)     */}
       {/* -------------------------------------------------- */}
-      <div
-        style={{
-          marginTop: "-120px",
-          paddingTop: "120px",
-          background: "white",
-          borderRadius: "40px 40px 0 0",
-          boxShadow: "0 -20px 60px rgba(0,0,0,.08)"
-        }}
-      >
-        <FadeSection delay={150}>
-          <section className="pt-5 pb-10 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-              {/* HEADER */}
-              <div className="mb-6 md:mb-8">
-                <h2
-                  className="
-          text-[24px] md:text-[32px]
-          font-extrabold text-[#0A214A]
-          leading-tight tracking-tight
-        "
-                >
-                  Top Courses · Select Your Study Goal
-                </h2>
+      <div className="bg-white">
+  <section className="pb-10 pt-5 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                <p className="text-sm md:text-base text-slate-600 mt-1">
-                  Explore curated course categories tailored to your academic interests.
-                </p>
-              </div>
+      {/* HEADER */}
+      <div className="mb-6 md:mb-8">
+        <h2
+          className="
+            text-[18px] md:text-[32px]
+            font-extrabold text-[#0A214A]
+            leading-tight tracking-tight
+          "
+        >
+          Top Courses · Select Your Study Goal
+        </h2>
 
-              {/* GRID */}
-              <div
-                className="
-            flex flex-row 
-            overflow-x-auto
-           
-            scrollbar-hide
-            snap-x snap-mandatory
-            
-            
-            gap-3 md:gap-6
-      "
-              >
-                {courseCategories.map((category, index) => (
-                  <AnimatedContainer key={category.name} delay={index * 80}>
-                    <button
-                      onClick={() =>
-                        navigate("/courses", {
-                          state: { initialStream: category.name },
-                        })
-                      }
-
-                      className={`
-              ${category.color}
-              text-white rounded-2xl 
-              flex-shrink:0 
-              w-[220px] md:w-[full]
-              /* Desktop Size */
-              px-6 py-6 h-[150px] md:h-[170px]
-
-              /* MOBILE SIZING */
-              max-md:h-[135px]
-              max-md:px-4 max-md:py-4
-
-              /* Shadow */
-              shadow-[0_6px_18px_rgba(0,0,0,0.12)]
-              hover:shadow-[0_10px_24px_rgba(0,0,0,0.18)]
-              transition-all duration-300 hover:-translate-y-[2px]
-
-              /* Layout */
-              flex flex-col justify-between
-            `}
-                    >
-                      {/* TOP - Icon + Title */}
-                      <div className="flex items-center gap-3 max-md:gap-2">
-                        <div
-                          className="
-                  bg-white/25 border border-white/20 backdrop-blur-sm
-                  rounded-xl flex items-center justify-center
-
-                  /* MOBILE ICON SIZE */
-                  max-md:p-2 max-md:h-8 max-md:w-8
-                  md:p-3
-                "
-                        >
-                          <img
-                            src={category.iconPath}
-                            alt={category.name}
-                            className="max-md:h-5 max-md:w-5 md:h-6 md:w-6 object-contain   invert brightness-5 saturate-5"
-                          />
-                        </div>
-
-                        <div className="leading-tight">
-                          <p className="font-bold text-[13px] md:text-[15px]">
-                            {category.name}
-                          </p>
-                          <p className="text-[10px] md:text-[11px] text-white/80">
-                            {category.courseCount}+ courses
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* DESCRIPTION */}
-                      <p
-                        className="
-                text-white/90 leading-snug
-                text-[10px] md:text-xs mt-1
-                max-md:line-clamp-2
-              "
-                      >
-                        {category.description}
-                      </p>
-                    </button>
-                  </AnimatedContainer>
-                ))}
-              </div>
-            </div>
-          </section>
-        </FadeSection>
+        <p className="text-sm md:text-base text-slate-600 mt-1">
+          Explore curated course categories tailored to your academic interests.
+        </p>
       </div>
+
+      {/* HORIZONTAL SCROLL GRID */}
+      <div
+        className="
+          flex flex-row
+          overflow-x-auto
+          scrollbar-hide
+          snap-x snap-mandatory
+          gap-3 md:gap-6
+        "
+      >
+        {courseCategories.map((category, index) => (
+          <AnimatedContainer key={category.name} delay={index * 80}>
+            <button
+              onClick={() =>
+                navigate('/courses', {
+                  state: { initialStream: category.name },
+                })
+              }
+              className="
+                bg-white
+                text-[#0A214A]
+                rounded-2xl
+                flex-shrink-0
+
+                /* SIZE */
+                w-[220px] md:w-[240px]
+                h-[150px] md:h-[170px]
+
+                max-md:w-[150px]
+                max-md:h-[120px]
+                max-md:px-4 max-md:py-4
+                px-6 py-6
+
+                /* BORDER + SHADOW */
+                border border-slate-200
+                shadow-[0_4px_14px_rgba(0,0,0,0.08)]
+                hover:shadow-[0_10px_26px_rgba(0,0,0,0.12)]
+
+                transition-all duration-300
+                hover:-translate-y-[2px]
+
+                flex flex-col justify-between
+              "
+            >
+              {/* TOP: ICON + TITLE */}
+              <div className="flex items-center gap-3 max-md:gap-2">
+                <div
+                  className="
+                    bg-slate-100
+                    border border-slate-200
+                    rounded-xl
+                    flex items-center justify-center
+                    md:p-3
+                    max-md:p-2 max-md:h-8 max-md:w-8
+                  "
+                >
+                  <img
+                    src={category.iconPath}
+                    alt={category.name}
+                    className="
+                      md:h-6 md:w-6
+                      max-md:h-5 max-md:w-5
+                      object-contain
+                    "
+                  />
+                </div>
+
+                <div className="leading-tight">
+                  <p className="font-semibold text-[11px] md:text-[15px]">
+                    {category.name}
+                  </p>
+                  <p className="text-[10px] md:text-[12px] text-slate-500">
+                    {category.courseCount}+ courses
+                  </p>
+                </div>
+              </div>
+
+              {/* DESCRIPTION */}
+              <p
+                className="
+                  text-slate-600
+                  leading-snug
+                  text-[10px] md:text-xs
+                  mt-1
+                  max-md:line-clamp-2
+                "
+              >
+                {category.description}
+              </p>
+            </button>
+          </AnimatedContainer>
+        ))}
+      </div>
+    </div>
+  </section>
+</div>
+
 
       {/* -------------------------------------------------- */}
       {/* FIND YOUR IDEAL COLLEGE (Top Universities cards)  */}
       {/* -------------------------------------------------- */}
 
-      <FadeSection delay={120}>
+    
         <section
 
-          className="pb-6 bg-white mt-5 pt-8 shadow-[0_12px_28px_rgba(0,0,0,0.06)] rounded-2xl">
+          className="pb-0 md:pb-6 bg-white mt-5 pt-8 shadow-[0_12px_28px_rgba(0,0,0,0.06)] rounded-2xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
+ 
             {/* Heading */}
             <div className="mb-8">
 
@@ -1086,7 +1281,7 @@ const HomePage: React.FC<HomePageProps> = ({
                 {/* LEFT SIDE: Heading */}
                 <div className="flex-shrink-0">
                   <h2
-                    className="text-[28px] md:text-[32px] font-extrabold tracking-tight text-slate-900"
+                    className="text-[20px] md:text-[32px] font-extrabold tracking-tight text-slate-900"
                     style={{ fontFamily: "Roboto, sans-serif" }}
                   >
                     Top Universities / Colleges
@@ -1101,21 +1296,33 @@ const HomePage: React.FC<HomePageProps> = ({
                 </div>
 
                 {/* RIGHT SIDE: Stream Filters */}
-                <div className="flex flex-wrap gap-1 lg:justify-end lg:max-w-[60%]">
+                <div className="flex overflow-x-auto
+           
+            scrollbar-hide
+            snap-x snap-mandatory md:flex-wrap gap-1 lg:justify-end lg:max-w-[60%] mb-[3px] md:mb-0 ">
                   {dynamicStreams.map((stream) => (
                     <button
-                      key={stream}
-                      onClick={() => setSelectedStream(stream)}
-                      className={`px-5 py-2 rounded-full text-sm font-medium border transition-all
-                        ${selectedStream === stream
-                          ? "bg-[#1f4fa8] text-white border-[#1f4fa8] shadow-md"
-                          : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-sm"
-                        }
-                    `}
-                      style={{ fontFamily: "Roboto, sans-serif" }}
-                    >
-                      {stream}
-                    </button>
+  key={stream}
+  onClick={() => setSelectedStream(stream)}
+  className={`
+    inline-flex items-center
+    whitespace-nowrap
+    px-3 py-1.5 md:px-5 md:py-2
+    rounded-full
+    text-[11px] md:text-sm
+    font-medium
+    border
+    transition-all
+    ${selectedStream === stream
+      ? "bg-[#1f4fa8] text-white border-[#1f4fa8] shadow-md"
+      : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-sm"
+    }
+  `}
+  style={{ fontFamily: "Roboto, sans-serif" }}
+>
+  {stream}
+</button>
+
                   ))}
                 </div>
 
@@ -1149,10 +1356,27 @@ const HomePage: React.FC<HomePageProps> = ({
                 >
                   {filteredColleges.map((college, index) => (
                     <div
-                      key={college.id}
-                      className="min-w-[300px] max-w-[330px] h-[430px] flex-shrink-0 max-md:h-[400px]"
+  key={college.id}
+  className="
+    flex-shrink-0
 
-                    >
+    /* MOBILE */
+    min-w-[240px]
+    max-w-[260px]
+    h-[360px]
+
+    /* TABLET */
+    sm:min-w-[280px]
+    sm:max-w-[300px]
+    sm:h-[400px]
+
+    /* DESKTOP (unchanged) */
+    lg:min-w-[300px]
+    lg:max-w-[330px]
+    lg:h-[430px]
+  "
+>
+
                       <AnimatedContainer delay={index * 90} className="h-full">
                         <CollegeCard
                           college={college}
@@ -1195,22 +1419,35 @@ const HomePage: React.FC<HomePageProps> = ({
             )}
 
             {/* View All Button */}
-            <div className="text-center mt-0">
-              <button
-                onClick={() => navigate("/colleges")}
+           <div className="text-center mt-4 md:mt-0">
+  <button
+    onClick={() => navigate("/colleges")}
+    className="
+      rounded-full
+      bg-[#1f4fa8]
+      text-white
+      font-semibold
+      shadow-lg
+      hover:bg-[#163a7a]
+      transition-all
+      mb-8
 
-                className="px-8 py-3 rounded-full bg-[#1f4fa8] text-white
-                font-semibold shadow-lg hover:bg-[#163a7a]
-                transition-all text-sm md:text-base mb-8"
-                style={{ fontFamily: "Roboto, sans-serif" }}
-              >
-                View All Colleges
-              </button>
-            </div>
+      /* MOBILE */
+      px-5 py-2 text-xs
+
+      /* DESKTOP (unchanged) */
+      md:px-8 md:py-3 md:text-base
+    "
+    style={{ fontFamily: "Roboto, sans-serif" }}
+  >
+    View All Colleges
+  </button>
+</div>
+
 
           </div>
         </section>
-      </FadeSection>
+    
 
       {/* Top Study Places Section */}
       <section className="py-3 bg-[#F8F9FA] relative overflow-hidden">
@@ -1225,7 +1462,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <div className="max-w-7xl mx-auto px-6">
 
           {/* HEADING */}
-          <h2 className="text-center text-[28px] md:text-[32px] font-bold text-[#0A225A] leading-[38px] md:leading-[42px] mt-4">
+          <h2 className="text-center text-[18px] md:text-[28px] md:text-[32px] font-bold text-[#0A225A] leading-[38px] md:leading-[42px] mt-4">
             Find Colleges Near You!
           </h2>
 
@@ -1307,44 +1544,45 @@ const HomePage: React.FC<HomePageProps> = ({
           max-md:pl-1
         "
             >
-              {filteredCities.map((city) => (
-                <div
-                  key={city.city}
-                  ref={cityRefs[city.city]}
-                onClick={() =>
-  navigate("/colleges", {
-    state: { city: city.city },
-  })
-}
+            {visibleRegions.map(region => (
+  <div
+    key={region}
+    onClick={() =>
+      navigate("/colleges", {
+        state: { region },
+      })
+    }
+    className="
+      min-w-[130px] md:min-w-[150px]
+      h-[135px] md:h-[150px]
+      rounded-2xl border
+      shadow-md hover:shadow-xl
+      snap-start p-4 md:p-6 cursor-pointer
+      flex flex-col items-center justify-center
+      bg-white
+    "
+  >
+    <div className="h-12 w-12 md:h-14 md:w-14">
+      <img
+        src={getCityIcon(region)}
+        alt={region}
+        className="h-full w-full object-contain"
+      />
+    </div>
 
-                  className={`
-  min-w-[130px] md:min-w-[150px]
-  h-[135px] md:h-[150px]
-   rounded-2xl border
-  shadow-md hover:shadow-xl 
-  snap-start p-4 md:p-6 cursor-pointer
-  flex flex-col items-center justify-center transition truncate
-  ${activeCity &&
-                      normalize(activeCity) === normalize(city.city)
-                      ? "bg-blue-200 border-blue-500 scale-105"
-                      : "border-gray-100 bg-white"
-                    }
-`}
+    <p
+      className="
+        font-bold text-sm md:text-lg text-[#0A2A6C]
+        mt-2 md:mt-3 text-center truncate
+      "
+      title={region}
+    >
+      {region}
+    </p>
+  </div>
+))}
 
-                >
-                  <div className="h-12 w-12 md:h-14 md:w-14 flex items-center justify-center">
-                    <img
-                      src={getCityIcon(city.city)}
-                      alt={city.city}
-                      className="h-10 w-10 md:h-12 md:w-12 object-contain"
-                    />
-                  </div>
 
-                  <p className="font-bold text-sm md:text-lg text-[#0A2A6C] mt-2 md:mt-3">
-                    {city.city}
-                  </p>
-                </div>
-              ))}
             </div>
 
             {/* RIGHT ARROW */}
@@ -1375,19 +1613,19 @@ const HomePage: React.FC<HomePageProps> = ({
 
 
             {/* Heading */}
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-2 md:mb-6">
               <svg width="35" height="35" viewBox="0 0 24 24" stroke="#0A225A" fill="none">
                 <path strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
                   d="M4 4h16v12H4z M4 16l8 4 8-4" />
               </svg>
-              <h2 className="text-3xl font-extrabold text-[#0A225A]">
+              <h2 className="text-2xl md:text-[3xl] font-extrabold text-[#0A225A]">
                 Explore Courses
               </h2>
             </div>
 
             {/* FILTER BY LEVEL ONLY */}
             <div className="mb-8">
-              <h3 className="font-bold text-lg text-[#0A225A] mb-3">Filter by Level</h3>
+              <h3 className="font-bold text-sm md:text-lg text-[#0A225A] mb-3">Filter by Level</h3>
               <div className="flex gap-3 flex-wrap">
 
                 {exploreLevels.map((level) => (
@@ -1433,15 +1671,23 @@ const HomePage: React.FC<HomePageProps> = ({
                 .map((course, index) => (
                   <div
                     key={index}
-                   onClick={() => navigate(`/course/${course.courseKey}`)}
+                    onClick={() => navigate(`/course/${course.courseKey}`)}
 
 
-                    className="
-              min-w-[260px] snap-start p-5 cursor-pointer
-              bg-white rounded-2xl border border-gray-200 
-              shadow-[0_4px_12px_rgba(0,0,0,0.08)]
-              transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.12)]
-            "
+                     className="
+    snap-start cursor-pointer bg-white border border-gray-200 rounded-xl
+    shadow-[0_4px_12px_rgba(0,0,0,0.08)]
+
+    /* MOBILE */
+    min-w-[220px]
+    p-3
+    h-[260px]
+
+    /* DESKTOP */
+    md:min-w-[260px]
+    md:p-5
+    md:h-auto
+  "
                   >
                     {/* Top Tags */}
                     <div className="flex justify-between mb-4 text-xs">
@@ -1471,7 +1717,7 @@ const HomePage: React.FC<HomePageProps> = ({
 
 
                     {/* Info Boxes */}
-                    <div className="grid grid-cols-2 gap-3 text-xs mb-5 mt-4">
+                  <div className="grid grid-cols-2 gap-2 text-[10px] md:text-xs mb-3 mt-3">
 
                       <div className="bg-gray-50 p-3 rounded-md border border-slate-100 flex flex-col">
                         <span className="text-gray-500 text-[11px]">Duration</span>
@@ -1503,12 +1749,13 @@ const HomePage: React.FC<HomePageProps> = ({
                     </div>
 
                     {/* Footer */}
-                    <div className="flex justify-between items-center pt-3 border-t">
-                      <button className="text-[#0A225A] text-[12px] font-semibold hover:underline">
+                 <div className="flex justify-between items-center pt-2 border-t">
+
+                      <button className="text-[#0A225A] text-[10px] md:text-[12px] font-semibold hover:underline">
                         Course Overview →
                       </button>
 
-                      <button className="bg-green-500 text-white px-2 py-2 rounded-full text-[11px] font-semibold hover:bg-green-600">
+                      <button className="bg-green-500 text-white px-2 py-2 rounded-full text-[8px] md:text-[11px] font-semibold hover:bg-green-600">
                         View Details
                       </button>
                     </div>
@@ -1528,11 +1775,15 @@ const HomePage: React.FC<HomePageProps> = ({
             </button>
 
             {/* VIEW ALL */}
-            <div className="flex justify-center mt-10">
+            <div className="flex justify-center mt-7">
               <button
-               onClick={() => navigate("/courses")}
+                onClick={() => navigate("/courses")}
 
-                className="bg-[#0A225A] text-white px-10 py-3 text-lg rounded-full font-semibold shadow-lg hover:bg-[#071a3f] transition"
+                className="
+    bg-[#0A225A] text-white rounded-full font-semibold shadow-lg
+    px-6 py-2 text-sm
+    md:px-10 md:py-3 md:text-lg
+  "
               >
                 View All Courses
               </button>
@@ -1540,118 +1791,12 @@ const HomePage: React.FC<HomePageProps> = ({
 
           </div>
         </section>
-      </Suspense>
+      </Suspense>  
 
-      {/* Trusted by Students Section testimonials  */}
-      <section className="py-12 bg-[#f4f6fb]">
-        <div className="max-w-6xl mx-auto px-6">
-
-          <h2 className="text-lg md:text-xl font-semibold text-[#0A225A] mb-6">
-            Student Reviews & Testimonials
-          </h2>
-
-          {/* MOBILE: Horizontal scroll */}
-          <div
-            className="
-        flex md:hidden
-        gap-4 overflow-x-auto scroll-smooth
-        snap-x snap-mandatory
-        pb-3
-        scrollbar-hide
-      "
-          >
-            {TESTIMONIALS_DATA.map((t, i) => (
-              <div
-                key={i}
-                className="
-            min-w-[80%] snap-start
-            bg-white rounded-2xl shadow-md border border-gray-200
-            p-5 flex flex-col gap-3
-          "
-              >
-                <div className="flex items-center gap-3">
-                  <img src={t.avatarUrl} className="h-10 w-10 rounded-full object-cover" />
-                  <div>
-                    <p className="font-semibold text-sm text-slate-900">{t.name}</p>
-                    <p className="text-[11px] text-slate-500">{t.college}</p>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-600">
-                  “{t.quote}”
-                </p>
-
-                <p className="text-[11px] text-yellow-500">★★★★★</p>
-              </div>
-            ))}
-          </div>
-
-          {/* DESKTOP: 3-column grid */}
-          <div className="hidden md:grid md:grid-cols-3 gap-6 mt-4">
-            {TESTIMONIALS_DATA.map((t, i) => (
-              <div
-                key={i}
-                className="
-            bg-white rounded-2xl shadow-md border border-gray-200
-            p-5 flex flex-col h-full
-          "
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <img src={t.avatarUrl} className="h-10 w-10 rounded-full object-cover" />
-                  <div>
-                    <p className="font-semibold text-sm text-slate-900">{t.name}</p>
-                    <p className="text-[11px] text-slate-500">{t.college}</p>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-600 flex-grow">
-                  “{t.quote}”
-                </p>
-
-                <p className="text-[11px] text-yellow-500 mt-3">★★★★★</p>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* Trusted by Students Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-
-          <h2 className="text-lg md:text-xl font-semibold text-[#0A225A] mb-10">
-            Trusted by Students from Top Institutions
-          </h2>
-
-          {/* SLIDER WRAPPER */}
-          <div className="overflow-hidden relative">
-
-            {/* SLIDER (infinite scroll) */}
-            <div className="flex items-center gap-16 animate-logoScroll whitespace-nowrap">
-
-              <img src="/logos/doon.png" className="h-14  hover:grayscale-0 transition" />
-              <img src="/logos/download.jpg" className="h-14  hover:grayscale-0 transition" />
-              <img src="/logos/ITM.png" className="h-14 hover:grayscale-0 transition" />
-              <img src="/logos/NBS.jpg" className="h-14 hover:grayscale-0 transition" />
-              <img src="/logos/StudyCups.png" className="h-14 hover:grayscale-0 transition" />
-
-              {/* Duplicate logos for infinite loop */}
-              <img src="/logos/doon.png" className="h-14 hover:grayscale-0 transition" />
-              <img src="/logos/download.jpg" className="h-14  hover:grayscale-0 transition" />
-              <img src="/logos/ITM.png" className="h-14 hover:grayscale-0 transition" />
-              <img src="/logos/NBS.jpg" className="h-14  hover:grayscale-0 transition" />
-              <img src="/logos/StudyCups.png" className="h-14 hover:grayscale-0 transition" />
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-      {/* -------------------------------------------------- */}
+         {/* -------------------------------------------------- */}
       {/* EXPLORE EXAMS SECTION (Updated with unique stream filters) */}
       {/* -------------------------------------------------- */}
+
 
       <section className="py-10 bg-white">
 
@@ -1668,7 +1813,7 @@ const HomePage: React.FC<HomePageProps> = ({
         {/* Exam Filters */}
 
 
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Heading */}
           <div className="mb-6">
@@ -1767,8 +1912,243 @@ const HomePage: React.FC<HomePageProps> = ({
 
         </div>
       </section>
+   
+{/* ================= STUDENT UPDATE STRIP ================= */}
+<section className="bg-white py-16">
+  <div className="max-w-7xl mx-auto px-6">
+    <div className="relative rounded-[32px] bg-gradient-to-br from-[#eef3ff] via-white to-[#f7f9fc] shadow-xl overflow-hidden">
+
+      <div className="flex flex-col lg:flex-row items-stretch">
+
+        {/* ================= LEFT : NEWS ================= */}
+        <div className="flex-1 pl-10 pr-0 py-10">
+          <div className="w-full h-full">
+
+            {/* Header */}
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3">
+                🔔 LIVE UPDATES
+              </div>
+
+              <h2 className="text-2xl font-bold text-slate-800">
+                Latest Education News
+              </h2>
+              <p className="text-sm text-slate-500 mt-1">
+                Admissions • Exams • Colleges
+              </p>
+            </div>
+
+            {/* News Card (FULL WIDTH – NO MAX WIDTH) */}
+            <div className="relative h-[340px] w-full rounded-2xl bg-white/90 backdrop-blur border border-slate-200 shadow-sm overflow-hidden">
+              <div className="h-full overflow-y-auto hide-scrollbar px-4 py-3 news-marquee newsscroll">
+
+                {[...loopingNews].map((news, i) => (
+                  <div
+                    key={i}
+                    className="flex gap-4 items-start py-2 px-2 rounded-xl hover:bg-blue-50 transition cursor-pointer"
+                  >
+                    <img
+                      src={news.imageUrl}
+                      className="w-14 h-12 rounded-lg object-cover flex-shrink-0"
+                      alt=""
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800 leading-snug">
+                        {news.title}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {news.date}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+
+              </div>
+
+              {/* fade */}
+              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+            </div>
+
+          </div>
+        </div>
+
+        {/* ================= RIGHT : IMAGE ================= */}
+        <div className="lg:w-[520px] w-full pl-0 pr-10 py-10 flex items-center">
+          <img
+            src="./icons/latestnews.png"
+            alt="Student Updates"
+            className="w-full h-full max-h-[420px] object-contain"
+          />
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
 
 
+
+
+
+
+
+      {/* Trusted by Students Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+
+          <h2 className="text-lg md:text-xl font-semibold text-[#0A225A] mb-10">
+            Trusted by Students from Top Institutions
+          </h2>
+
+          {/* SLIDER WRAPPER */}
+          <div className="overflow-hidden relative">
+
+            {/* SLIDER (infinite scroll) */}
+            <div className="flex items-center gap-16 animate-logoScroll whitespace-nowrap">
+
+              <img src="/logos/doon.png" className="h-14  hover:grayscale-0 transition" />
+              <img src="/logos/download.jpg" className="h-14  hover:grayscale-0 transition" />
+              <img src="/logos/ITM.png" className="h-14 hover:grayscale-0 transition" />
+              <img src="/logos/NBS.jpg" className="h-14 hover:grayscale-0 transition" />
+              <img src="/logos/StudyCups.png" className="h-14 hover:grayscale-0 transition" />
+
+              {/* Duplicate logos for infinite loop */}
+              <img src="/logos/doon.png" className="h-14 hover:grayscale-0 transition" />
+              <img src="/logos/download.jpg" className="h-14  hover:grayscale-0 transition" />
+              <img src="/logos/ITM.png" className="h-14 hover:grayscale-0 transition" />
+              <img src="/logos/NBS.jpg" className="h-14  hover:grayscale-0 transition" />
+              <img src="/logos/StudyCups.png" className="h-14 hover:grayscale-0 transition" />
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+        <section className="py-16 bg-[#f4f6fb]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-8">
+            Latest from our Blog
+          </h2>
+
+          {/* MOBILE: horizontal scroll */}
+          <div
+            className="
+        flex md:hidden 
+        gap-4 overflow-x-auto scroll-smooth 
+        snap-x snap-mandatory pb-4 scrollbar-hide
+      "
+          >
+            {BLOG_POSTS_DATA.slice(0, 3).map((post, index) => (
+              <div
+                key={post.id}
+                onClick={() => navigate(`/blog/${post.id}`)}
+
+                className="
+            min-w-[85%] snap-start
+            bg-white rounded-2xl shadow-md border border-slate-100 
+            overflow-hidden cursor-pointer flex flex-col
+          "
+              >
+                <div className="h-36 overflow-hidden">
+                  <img
+                    src={post.imageUrl}
+                    alt={post.title}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+
+                <div className="px-5 py-4 flex flex-col">
+                  <span
+                    className={`
+                text-[10px] font-semibold px-2 py-1 rounded-full 
+                ${blogCategoryColors[post.category] || "bg-slate-100 text-slate-700"}
+              `}
+                  >
+                    {post.category}
+                  </span>
+
+                  <h3 className="text-sm font-semibold text-slate-900 mt-2">
+                    {post.title}
+                  </h3>
+
+                  <p className="text-[11px] text-slate-600 line-clamp-3 mt-1">
+                    {post.excerpt}
+                  </p>
+
+                  <span className="mt-3 text-[11px] font-semibold text-[#1f4fa8]">
+                    Read More →
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* DESKTOP: 3 column grid */}
+          <div className="hidden md:grid grid-cols-3 gap-6">
+            {BLOG_POSTS_DATA.slice(0, 3).map((post, index) => (
+              <AnimatedContainer key={post.id} delay={index * 80}>
+                <div
+                  onClick={() => navigate(`/blog/${post.id}`)}
+
+                  className="
+              bg-white rounded-2xl shadow-md border border-slate-100 
+              overflow-hidden cursor-pointer flex flex-col h-full
+            "
+                >
+                  <div className="h-40 overflow-hidden">
+                    <img
+                      src={post.imageUrl}
+                      alt={post.title}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+
+                  <div className="px-5 py-4 flex flex-col flex-grow">
+                    <span
+                      className={`
+                  text-[10px] font-semibold px-2 py-1 rounded-full 
+                  ${blogCategoryColors[post.category] || "bg-slate-100 text-slate-700"}
+                `}
+                    >
+                      {post.category}
+                    </span>
+
+                    <h3 className="text-sm font-semibold text-slate-900 mt-2 flex-grow">
+                      {post.title}
+                    </h3>
+
+                    <p className="text-[11px] text-slate-600 line-clamp-3">
+                      {post.excerpt}
+                    </p>
+
+                    <span className="mt-3 text-[11px] font-semibold text-[#1f4fa8]">
+                      Read More →
+                    </span>
+                  </div>
+                </div>
+              </AnimatedContainer>
+            ))}
+          </div>
+
+          {/* VIEW ALL BUTTON */}
+          <div className="text-center mt-10">
+            <button
+              onClick={() => navigate("/blog")}
+
+              className="
+          inline-flex items-center justify-center px-6 py-2.5 rounded-full 
+          border border-[#1f4fa8] text-[#1f4fa8] text-sm font-semibold 
+          hover:bg-[#1f4fa8]/
+        "
+            >
+              View all articles
+            </button>
+          </div>
+
+        </div>
+      </section>
 
       {/* -------------------------------------------------- */}
       {/* COLLEGE RANKING TABLE (Image 2 middle)            */}
@@ -1870,7 +2250,80 @@ const HomePage: React.FC<HomePageProps> = ({
       {/* OPTIONAL: FAQ + BLOG + CONTACT (keep functionality) */}
       {/* (You can remove these if you strictly want home to  */}
       {/* end at the gradient footer below.)                 */}
-      {/* -------------------------------------------------- */}
+      {/* -------------------------------------------------- */} 
+
+      <section className="py-12 bg-[#f4f6fb]">
+        <div className="max-w-6xl mx-auto px-6">
+
+          <h2 className="text-lg md:text-xl font-semibold text-[#0A225A] mb-6">
+            Student Reviews & Testimonials
+          </h2>
+
+          {/* MOBILE: Horizontal scroll */}
+          <div
+            className="
+        flex md:hidden
+        gap-4 overflow-x-auto scroll-smooth
+        snap-x snap-mandatory
+        pb-3
+        scrollbar-hide
+      "
+          >
+            {TESTIMONIALS_DATA.map((t, i) => (
+              <div
+                key={i}
+                className="
+            min-w-[80%] snap-start
+            bg-white rounded-2xl shadow-md border border-gray-200
+            p-5 flex flex-col gap-3
+          "
+              >
+                <div className="flex items-center gap-3">
+                  <img src={t.avatarUrl} className="h-10 w-10 rounded-full object-cover" />
+                  <div>
+                    <p className="font-semibold text-sm text-slate-900">{t.name}</p>
+                    <p className="text-[11px] text-slate-500">{t.college}</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-600">
+                  “{t.quote}”
+                </p>
+
+                <p className="text-[11px] text-yellow-500">★★★★★</p>
+              </div>
+            ))}
+          </div>
+
+          {/* DESKTOP: 3-column grid */}
+          <div className="hidden md:grid md:grid-cols-3 gap-6 mt-4">
+            {TESTIMONIALS_DATA.map((t, i) => (
+              <div
+                key={i}
+                className="
+            bg-white rounded-2xl shadow-md border border-gray-200
+            p-5 flex flex-col h-full
+          "
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <img src={t.avatarUrl} className="h-10 w-10 rounded-full object-cover" />
+                  <div>
+                    <p className="font-semibold text-sm text-slate-900">{t.name}</p>
+                    <p className="text-[11px] text-slate-500">{t.college}</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-600 flex-grow">
+                  “{t.quote}”
+                </p>
+
+                <p className="text-[11px] text-yellow-500 mt-3">★★★★★</p>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
 
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1928,130 +2381,7 @@ const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* Blog preview */}
-      <section className="py-16 bg-[#f4f6fb]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-
-          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-8">
-            Latest from our Blog
-          </h2>
-
-          {/* MOBILE: horizontal scroll */}
-          <div
-            className="
-        flex md:hidden 
-        gap-4 overflow-x-auto scroll-smooth 
-        snap-x snap-mandatory pb-4 scrollbar-hide
-      "
-          >
-            {BLOG_POSTS_DATA.slice(0, 3).map((post, index) => (
-              <div
-                key={post.id}
-                onClick={() => navigate(`/blog/${post.id}`)}
-
-                className="
-            min-w-[85%] snap-start
-            bg-white rounded-2xl shadow-md border border-slate-100 
-            overflow-hidden cursor-pointer flex flex-col
-          "
-              >
-                <div className="h-36 overflow-hidden">
-                  <img
-                    src={post.imageUrl}
-                    alt={post.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-
-                <div className="px-5 py-4 flex flex-col">
-                  <span
-                    className={`
-                text-[10px] font-semibold px-2 py-1 rounded-full 
-                ${blogCategoryColors[post.category] || "bg-slate-100 text-slate-700"}
-              `}
-                  >
-                    {post.category}
-                  </span>
-
-                  <h3 className="text-sm font-semibold text-slate-900 mt-2">
-                    {post.title}
-                  </h3>
-
-                  <p className="text-[11px] text-slate-600 line-clamp-3 mt-1">
-                    {post.excerpt}
-                  </p>
-
-                  <span className="mt-3 text-[11px] font-semibold text-[#1f4fa8]">
-                    Read More →
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* DESKTOP: 3 column grid */}
-          <div className="hidden md:grid grid-cols-3 gap-6">
-            {BLOG_POSTS_DATA.slice(0, 3).map((post, index) => (
-              <AnimatedContainer key={post.id} delay={index * 80}>
-                <div
-                onClick={() => navigate(`/blog/${post.id}`)}
-
-                  className="
-              bg-white rounded-2xl shadow-md border border-slate-100 
-              overflow-hidden cursor-pointer flex flex-col h-full
-            "
-                >
-                  <div className="h-40 overflow-hidden">
-                    <img
-                      src={post.imageUrl}
-                      alt={post.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-
-                  <div className="px-5 py-4 flex flex-col flex-grow">
-                    <span
-                      className={`
-                  text-[10px] font-semibold px-2 py-1 rounded-full 
-                  ${blogCategoryColors[post.category] || "bg-slate-100 text-slate-700"}
-                `}
-                    >
-                      {post.category}
-                    </span>
-
-                    <h3 className="text-sm font-semibold text-slate-900 mt-2 flex-grow">
-                      {post.title}
-                    </h3>
-
-                    <p className="text-[11px] text-slate-600 line-clamp-3">
-                      {post.excerpt}
-                    </p>
-
-                    <span className="mt-3 text-[11px] font-semibold text-[#1f4fa8]">
-                      Read More →
-                    </span>
-                  </div>
-                </div>
-              </AnimatedContainer>
-            ))}
-          </div>
-
-          {/* VIEW ALL BUTTON */}
-          <div className="text-center mt-10">
-            <button
-            onClick={() => navigate("/blog")}
-
-              className="
-          inline-flex items-center justify-center px-6 py-2.5 rounded-full 
-          border border-[#1f4fa8] text-[#1f4fa8] text-sm font-semibold 
-          hover:bg-[#1f4fa8]/
-        "
-            >
-              View all articles
-            </button>
-          </div>
-
-        </div>
-      </section>
+   
 
 
       {/* Contact section */}

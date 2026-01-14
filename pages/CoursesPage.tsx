@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import type { View, College } from "../types";
 import { useOnScreen } from "../hooks/useOnScreen";
+import { useLocation } from "react-router-dom";
+
 import { useNavigate } from "react-router-dom"; 
 
 /* ================= ANIMATION ================= */
@@ -48,10 +50,21 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const [searchTerm, setSearchTerm] = useState(""); 
   const [selectedStream, setSelectedStream] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  useEffect(() => {
-    if (initialStream) setSelectedStream(initialStream.trim());
-  }, [initialStream]); 
+
+const location = useLocation();
+
+useEffect(() => {
+  if (location.state && typeof location.state === "object") {
+    const navState = location.state as any;
+
+    if (navState.initialStream) {
+      setSelectedStream(navState.initialStream.trim());
+    }
+  }
+}, [location.state]);
+
 
 
   const deriveStream = (courseName: string) => {
@@ -248,28 +261,40 @@ col.rawScraped.courses.forEach((cr) => {
 {/* HERO */}
 <section className="relative overflow-hidden mt-6">
   {/* Background */}
-  <div className="absolute inset-0 bg-gradient-to-br from-[#0f2a44] via-[#163b63] to-[#1e4e79]" />
+  <div className="absolute inset-0 bg-gradient-to-br from-[#0f2a44] via-[#163b63] to-[#1e4e79] pt-3" />
 
   {/* Decorative blur (smaller) */}
-  <div className="absolute -top-32 -left-32 h-64 w-64 bg-blue-500/20 rounded-full blur-3xl" />
+ <div className="
+  absolute -top-24 -left-24
+  h-40 w-40
+  md:h-64 md:w-64
+  bg-blue-500/20 rounded-full blur-3xl
+" />
+
   <div className="absolute top-32 -right-32 h-72 w-72 bg-indigo-500/20 rounded-full blur-3xl" />
 
   {/* CONTENT */}
-  <div className="relative container mx-auto px-6 py-14 md:py-16 text-center text-white">
+  <div className="
+  relative container mx-auto text-center text-white
+  px-8
+  md:px-4
+  py-8
+  md:px-6 md:py-16">
 
     {/* Title */}
-    <h1 className="text-3xl md:text-4xl font-extrabold leading-tight">
+    <h1 className="text-xl md:text-4xl pt-3xl md:pt-2xl font-extrabold leading-sung">
       Explore Career-Focused Courses
     </h1>
 
     {/* Subtitle */}
-    <p className="mt-3 text-base md:text-lg text-white/80 max-w-2xl mx-auto">
+   <p className="mt-2 text-sm md:text-lg text-white/80 max-w-2xl mx-auto">
+
       Discover the best courses across top colleges and universities in India.
       Compare duration, level and career outcomes.
     </p>
 
     {/* Search */}
-    <div className="mt-7 max-w-xl mx-auto relative">
+    <div className="mt-7 max-w-xl mx-auto relative flex hidden md:block">
       <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 text-lg">
         🔍
       </span>
@@ -284,19 +309,23 @@ col.rawScraped.courses.forEach((cr) => {
     </div>
 
     {/* STATS (compact) */}
-    <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+  <div className="mt-5 md:mt-10 grid grid-cols-3 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
+
       <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-        <p className="text-2xl font-extrabold">500+</p>
+       <p className="text-lg md:text-2xl font-extrabold">
+500+</p>
         <p className="text-xs text-white/80">Courses Available</p>
       </div>
 
       <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-        <p className="text-2xl font-extrabold">50+</p>
+      <p className="text-lg md:text-2xl font-extrabold">
+50+</p>
         <p className="text-xs text-white/80">Career Streams</p>
       </div>
 
       <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-        <p className="text-2xl font-extrabold">100K+</p>
+      <p className="text-lg md:text-2xl font-extrabold">
+100K+</p>
         <p className="text-xs text-white/80">Students Guided</p>
       </div>
     </div>
@@ -307,70 +336,200 @@ col.rawScraped.courses.forEach((cr) => {
     </p>
 
   </div>
-</section>
+</section> 
+
+{/* MOBILE FILTER BUTTON */}
+<div className="md:hidden px-6 mt-4">
+  <button
+    onClick={() => setShowMobileFilters(true)}
+    className=" 
+      
+      w-full
+      py-3
+      rounded-xl
+      bg-transparent
+      text-[#0A225A]
+      font-semibold
+      shadow-md
+    "
+  >
+    Filters
+  </button>
+</div>
 
 
 
-      <div className="container mx-auto px-6 py-12">
+
+      <div className="  container mx-auto px-6 py-12"> 
+       <div className="flex gap-8 items-start">
         {/* FILTERS */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-12 space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold mb-3">Filter by Stream</h3>
-              <div className="flex flex-wrap gap-2">
-                {streams.map((stream) => (
-                  <button
-                    key={stream}
-                    onClick={() => setSelectedStream(stream)}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold border ${
-                      selectedStream === stream
-                        ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)]"
-            : "bg-white text-slate-700 hover:bg-slate-100 border-slate-300"
-                    }`}
-                  >
-                    {stream}
-                  </button>
-                ))}
-              </div>
-            </div>
+       {/* LEFT FILTER SIDEBAR (Desktop) */}
+<aside className="hidden md:block w-[260px] sticky top-28">
+  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
 
-            <div>
-              <h3 className="font-semibold mb-3">Filter by Level</h3>
-              <div className="flex flex-wrap gap-2">
-                {levels.map((level) => (
-                  <button
-                    key={level}
-                    onClick={() => setSelectedLevel(level)}
-                    className={`px-4 py-2 rounded-full text-sm font-semibold border ${
-                      selectedLevel === level
-                        ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)]"
-            : "bg-white text-slate-700 hover:bg-slate-100 border-slate-300"
-                    }`}
-                  >
-                    {level}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+    {/* HEADER */}
+    <div className="px-5 py-4 border-b bg-slate-50">
+      <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">
+        Filters
+      </h3>
+    </div>
 
-          {(selectedStream !== "All" || selectedLevel !== "All") && (
-            <div className="text-center">
-              <button
-                onClick={clearFilters}
-                className="text-red-600 font-semibold"
-              >
-                Clear Filters
-              </button>
-            </div>
-          )}
+    <div className="p-5 space-y-6">
+
+      {/* STREAM */}
+      <div>
+        <h4 className="text-xs font-semibold text-slate-500 uppercase mb-3">
+          Stream
+        </h4>
+
+        <div className="space-y-2">
+          {streams.map(stream => (
+            <label
+              key={stream}
+              className={`
+                flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
+                border transition
+                ${
+                  selectedStream === stream
+                    ? "bg-blue-50 border-blue-500"
+                    : "border-slate-200 hover:bg-slate-50"
+                }
+              `}
+            >
+              <input
+                type="radio"
+                name="stream"
+                checked={selectedStream === stream}
+                onChange={() => setSelectedStream(stream)}
+                className="accent-blue-600"
+              />
+              <span className="text-sm font-medium text-slate-800">
+                {stream}
+              </span>
+            </label>
+          ))}
         </div>
+      </div>
+
+      {/* DIVIDER */}
+      <div className="h-px bg-slate-200" />
+
+      {/* LEVEL */}
+      <div>
+        <h4 className="text-xs font-semibold text-slate-500 uppercase mb-3">
+          Level
+        </h4>
+
+        <div className="space-y-2">
+          {levels.map(level => (
+            <label
+              key={level}
+              className={`
+                flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
+                border transition
+                ${
+                  selectedLevel === level
+                    ? "bg-blue-50 border-blue-500"
+                    : "border-slate-200 hover:bg-slate-50"
+                }
+              `}
+            >
+              <input
+                type="radio"
+                name="level"
+                checked={selectedLevel === level}
+                onChange={() => setSelectedLevel(level)}
+                className="accent-blue-600"
+              />
+              <span className="text-sm font-medium text-slate-800">
+                {level}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* CLEAR */}
+      {(selectedStream !== "All" || selectedLevel !== "All") && (
+        <button
+          onClick={clearFilters}
+          className="
+            w-full mt-4 py-2 rounded-lg
+            text-sm font-semibold
+            text-red-600 border border-red-200
+            hover:bg-red-50 transition
+          "
+        >
+          Clear Filters
+        </button>
+      )}
+
+    </div>
+  </div>
+</aside>
+
+
 
         {/* COURSES GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredCourses.map((course, index) => (
-            <AnimatedContainer key={course.courseKey} delay={index * 80}>
-           <div
+     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+  {filteredCourses.map((course) => (
+    <React.Fragment key={course.courseKey}>
+<div
+  onClick={() =>
+    setView({
+      page: "course-detail",
+      courseIds: course.courseIds,
+      courseKey: course.courseKey,
+    })
+  }
+  className="
+    md:hidden
+    bg-white
+    rounded-xl
+    border border-slate-200
+    shadow-sm
+    p-3
+    flex flex-col
+  "
+>
+  {/* META */}
+  <div className="flex justify-between text-[10px] text-slate-500 mb-1">
+    <span className="font-semibold">{course.level}</span>
+    <span>{course.duration}</span>
+  </div>
+
+  {/* TITLE */}
+  <h3 className="text-[12px] font-semibold line-clamp-2 mb-2">
+    {course.fullName}
+  </h3>
+
+  {/* INFO */}
+  <div className="text-[11px] text-slate-600 space-y-1 mb-3">
+    <p><b>Fees:</b> {course.fees || "N/A"}</p>
+    <p><b>Colleges:</b> {course.colleges?.length || 0}</p>
+  </div>
+
+  {/* CTA */}
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      navigate(`/course/${course.courseKey}`);
+    }}
+    className="
+      mt-auto
+      w-full
+      py-2
+      rounded-lg
+      bg-[#0A225A]
+      text-white
+      text-[11px]
+      font-semibold
+    "
+  >
+    View Details
+  </button>
+</div>
+   <div 
   onClick={() =>
     setView({
       page: "course-detail",
@@ -383,7 +542,7 @@ col.rawScraped.courses.forEach((cr) => {
     shadow-[0_8px_24px_rgba(0,0,0,0.08)]
     hover:shadow-[0_12px_32px_rgba(0,0,0,0.12)]
     transition-all duration-300
-    p-6 cursor-pointer flex flex-col h-full
+    p-6 cursor-pointer flex flex-col h-full hidden md:block
   "
 >
   {/* TAGS */}
@@ -447,7 +606,7 @@ col.rawScraped.courses.forEach((cr) => {
 
   {/* FOOTER */}
   <div className="mt-auto flex justify-between items-center">
-    <span className="text-[12px] font-semibold text-blue-700">
+    <span className="text-[8px] font-semibold text-blue-700">
       Course Overview →
     </span>
   <button
@@ -455,18 +614,110 @@ col.rawScraped.courses.forEach((cr) => {
     e.stopPropagation();  // Prevent card click
     navigate(`/course/${course.courseKey}`);
   }}
- className="px-3 py-2 bg-green-500 text-white text-xs rounded-full font-semibold hover:bg-green-600 transition-all"
+ className="px-2 py-2 bg-green-500 text-white text-[8px] rounded-full font-semibold hover:bg-green-600 transition-all"
 >
   View Details →
 </button>
 
   </div>
+
+
+           </div>     </React.Fragment>
+  ))}
+
 </div>
 
-            </AnimatedContainer>
-          ))}
-        </div>
+
+</div>
+        
+
+        
+      </div> 
+
+      
+   
+   
+    
+{showMobileFilters && (
+  <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:hidden">
+    <div className="w-full bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto p-6 animate-slideUp">
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-bold">Filters</h3>
+        <button
+          onClick={() => setShowMobileFilters(false)}
+          className="text-red-600 font-semibold text-sm"
+        >
+          Close
+        </button>
       </div>
+
+      {/* SAME FILTER CONTENT (reuse) */}
+      <div className="space-y-6">
+
+        {/* Filter by Stream */}
+        <div>
+          <h3 className="font-semibold mb-3">Filter by Stream</h3>
+          <div className="flex flex-wrap gap-2">
+            {streams.map((stream) => (
+              <button
+                key={stream}
+                onClick={() => setSelectedStream(stream)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold border ${
+                  selectedStream === stream
+                    ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)]"
+                    : "bg-white text-slate-700 border-slate-300"
+                }`}
+              >
+                {stream}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Filter by Level */}
+        <div>
+          <h3 className="font-semibold mb-3">Filter by Level</h3>
+          <div className="flex flex-wrap gap-2">
+            {levels.map((level) => (
+              <button
+                key={level}
+                onClick={() => setSelectedLevel(level)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold border ${
+                  selectedLevel === level
+                    ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)]"
+                    : "bg-white text-slate-700 border-slate-300"
+                }`}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Clear + Apply */}
+        <div className="flex gap-3 pt-4">
+          <button
+            onClick={clearFilters}
+            className="flex-1 py-3 rounded-xl border font-semibold"
+          >
+            Clear
+          </button>
+
+          <button
+            onClick={() => setShowMobileFilters(false)}
+            className="flex-1 py-3 rounded-xl bg-[#0A225A] text-white font-semibold"
+          >
+            Apply
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

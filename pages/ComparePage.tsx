@@ -86,7 +86,7 @@ const ComparePage: React.FC<ComparePageProps> = ({
         </p>
         <button
           onClick={() => navigate("/colleges")}
-          className="px-6 py-3 bg-[--primary-medium] text-white font-semibold rounded-lg"
+          className="px-6 py-3 bg-[orange] text-black font-semibold rounded-lg"
         >
           Add College
         </button>

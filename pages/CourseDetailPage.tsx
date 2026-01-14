@@ -213,7 +213,7 @@ const collegesOfferingCourse = useMemo(() => {
 
 
       {/* BODY */}
-      <div className="container max-w-7xl md:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container max-w-7xl md:max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
 
         <main className="lg:col-span-2 space-y-8">

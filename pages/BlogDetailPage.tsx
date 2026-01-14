@@ -14,7 +14,7 @@ const BlogDetailPage: React.FC = () => {
     const fetchBlog = async () => {
       try {
         const res = await fetch(
-          `https://studycupsbackend.onrender.com/api/blogs/${id}`
+          `https://studycupsbackend-production.up.railway.app/api/blogs/${id}`
         );
         const json = await res.json();
         setBlog(json.data);

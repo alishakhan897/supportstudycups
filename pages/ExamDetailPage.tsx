@@ -22,7 +22,7 @@ const ExamDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchExam = async () => {
       try {
-        const res = await fetch(`https://studycupsbackend.onrender.com/api/exams/${examId}`);
+        const res = await fetch(`https://studycupsbackend-production.up.railway.app/api/exams/${examId}`);
         const json = await res.json();
         if (json.success) setExam(json.data);
       } catch (e) {

@@ -36,7 +36,9 @@
 /* Apply Poppins globally */
 * {
   font-family: 'Poppins', system-ui, Arial, sans-serif;
-}
+} 
+
+
 
 /* Hide scrollbar for college carousel */
 #collegeCarousel::-webkit-scrollbar {
@@ -92,9 +94,7 @@
   scrollbar-width: none;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+
       
   @keyframes scrollX {
     0% { transform: translateX(0); }
@@ -128,3 +128,41 @@ html {
 
 
 
+.news-scroll {
+    animation: newsScrollUp 18s linear infinite;
+  }
+
+  @keyframes newsScrollUp {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-90%);
+    }
+  }
+
+  /* pause on hover (professional touch) */
+  .news-scroll:hover {
+    animation-play-state: paused;
+  }
+.news-marquee {
+  animation: newsScroll 25s linear infinite;
+}
+
+@keyframes newsScroll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-60%);
+  }
+}
+/* Hide scrollbar but keep scroll */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}

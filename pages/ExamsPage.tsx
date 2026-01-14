@@ -38,7 +38,7 @@ const ExamsPage: React.FC = () => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const res = await fetch("https://studycupsbackend.onrender.com/api/exams");
+        const res = await fetch("https://studycupsbackend-production.up.railway.app/api/exams");
         const json = await res.json();
         setExams(json.data || []);
       } catch (err) {
@@ -185,7 +185,7 @@ const visibleNews = showAllNews
 
             {/* CATEGORIES */}
        
-            {/* EXAMS LIST */}
+           
      {/* EXAMS LIST */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   {filteredExams.map((exam, index) => (
@@ -281,9 +281,11 @@ const visibleNews = showAllNews
   space-y-6
   sticky top-28 h-fit">
 
-          <div className="bg-white border rounded-xl p-4">
-  {/* HEADER */}
-  <div className="flex items-center justify-between mb-3">
+          <div className="bg-white border rounded-xl p-4"> 
+
+  {/* HEADER */} 
+
+  <div className="flex items-center justify-between mb-3 ">
     <h3 className="font-semibold text-slate-900">
       Exam News & Alerts
     </h3>
@@ -292,9 +294,9 @@ const visibleNews = showAllNews
       LIVE
     </span>
   </div>
-
+  <div>
   {/* NEWS LIST */}
-  <div className="space-y-3">
+  <div className="space-y-3 exam-news-marquee">
     {visibleNews.map((news, idx) => (
       <div
         key={idx}
@@ -336,6 +338,7 @@ const visibleNews = showAllNews
         </div>
       </div>
     ))}
+  </div> 
   </div>
 
   {/* READ MORE BUTTON */}

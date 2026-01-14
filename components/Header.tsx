@@ -134,7 +134,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenApplyNow }) => {
 
             <button
               onClick={onOpenApplyNow}
-              className="bg-[#1E4A7A] text-white px-4 py-2 rounded-full font-semibold hover:bg-[#0aa34f]"
+              className="bg-[#1E4A7A] text-white px-4 py-2 rounded-full font-semibold hover:bg-[orange]"
             >
               Apply Now
             </button>
