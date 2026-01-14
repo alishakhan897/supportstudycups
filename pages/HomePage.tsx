@@ -1041,101 +1041,109 @@ const visibleRegions = regionList.slice(0, 7);
   />
 
   {/* CONTENT WRAPPER */}
-<div className="relative z-10 h-full flex items-center">
-  <div className="max-w-7xl w-full mx-auto px-6 md:px-8">
-    {/* LEFT CONTENT */}
-    <div className="max-w-xl">
-      {/* HEADING */}
-     <h1 className="text-slate-900 font-extrabold tracking-tight
-               text-[28px] leading-[38px]
-               md:text-[44px] md:leading-[58px]">
-  Explore Top Colleges,
-  <br />
-  Courses &{" "}
-  <span className="text-[#F4A71D] inline-block min-w-[140px]">
-    {currentWord}
-  </span>
-</h1>
 
+<div className="relative z-10 h-full flex items-center max-md:justify-center">
+  <div className="max-w-7xl w-full mx-auto px-6 md:px-8">
+
+    {/* LEFT CONTENT */}
+    <div
+      className="
+        max-w-xl
+        max-md:mx-auto
+        max-md:text-center
+
+        /* MOBILE GLASS EFFECT */
+        max-md:bg-white/20
+        max-md:backdrop-blur-md
+        max-md:rounded-2xl
+        max-md:p-6
+        max-md:shadow-lg
+      "
+    >
+      {/* HEADING */}
+      <h1
+        className="
+          text-slate-900 font-extrabold tracking-tight
+          text-[22px] leading-[34px]
+          md:text-[44px] md:leading-[58px]
+        "
+      >
+        Explore Top Colleges,
+        <br />
+        Courses &{" "}
+        <span className="text-[#F4A71D] inline-block min-w-[140px]">
+          {currentWord}
+        </span>
+      </h1>
 
       {/* SUBTEXT */}
-      <p className="text-slate-600 mt-4 text-sm md:text-base font-medium max-w-md">
+      <p
+        className="
+          text-slate-700
+          mt-3
+          text-sm
+          md:text-base
+          font-medium
+          max-w-md
+          max-md:mx-auto
+        "
+      >
         Search 1000+ colleges, exams, check fees & discover your future.
       </p>
 
-      {/* SEARCH BAR */}
-     <form
-  onSubmit={handleSearch}
-  className="
-    mt-8
-    hidden md:flex
-    items-center
-    w-full max-w-xl
-    bg-white
-    border border-slate-200
-    rounded-full
-    shadow-md
-    overflow-hidden
-  "
->
-  {/* College Input */}
-  <input
-    type="text"
-    name="college"
-    placeholder="College Name"
-    value={heroFilters.college}
-    onChange={handleFilterChange}
-    className="
-      flex-1
-      px-5 py-4
-      text-sm md:text-base
-      outline-none
-      text-slate-800
-      placeholder-slate-400
-    "
-  />
+      {/* SEARCH BAR → DESKTOP ONLY (UNCHANGED) */}
+      <form
+        onSubmit={handleSearch}
+        className="
+          mt-8
+          hidden md:flex
+          items-center
+          w-full max-w-xl
+          bg-white
+          border border-slate-200
+          rounded-full
+          shadow-md
+          overflow-hidden
+        "
+      >
+        <input
+          type="text"
+          name="college"
+          placeholder="College Name"
+          value={heroFilters.college}
+          onChange={handleFilterChange}
+          className="flex-1 px-5 py-4 text-sm md:text-base outline-none"
+        />
 
-  {/* Divider */}
-  <div className="w-px h-8 bg-slate-200"></div>
+        <div className="w-px h-8 bg-slate-200" />
 
-  {/* City Input */}
-  <input
-    type="text"
-    name="city"
-    placeholder="City"
-    value={heroFilters.city}
-    onChange={handleFilterChange}
-    className="
-      flex-1
-       py-4
-      text-sm md:text-base
-      outline-none
-      text-slate-800
-      placeholder-slate-400
-    "
-  />
+        <input
+          type="text"
+          name="city"
+          placeholder="City"
+          value={heroFilters.city}
+          onChange={handleFilterChange}
+          className="flex-1 py-4 text-sm md:text-base outline-none"
+        />
 
-  {/* Search Button */}
-  <button
-    type="submit"
-    className="
-      px-8 py-4
-      bg-[#0F6BC9]
-      text-white
-      font-semibold
-      text-sm md:text-base
-      hover:bg-[#0c59a3]
-      transition-colors
-      whitespace-nowrap
-    "
-  >
-    Search
-  </button>
-</form>
-
+        <button
+          type="submit"
+          className="
+            px-8 py-4
+            bg-[#0F6BC9]
+            text-white
+            font-semibold
+            hover:bg-[#0c59a3]
+            transition
+          "
+        >
+          Search
+        </button>
+      </form>
     </div>
   </div>
 </div>
+
 
 </section>
 
