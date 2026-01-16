@@ -18,6 +18,7 @@ import BlogPage from "./pages/BlogPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
 import ComparePage from "./pages/ComparePage";
 import DetailPage from "./pages/DetailPage";
+import ErrorBoundary from "./pages/ErrorBoundary";
 
 /* ===== TYPES ===== */
 import type { College } from "./types";
@@ -121,14 +122,16 @@ const App: React.FC = () => {
 
       <Route
         path="/college/:slugId"
-        element={
+        element={ 
+        
           <DetailPage
             colleges={colleges}
             compareList={compareList}
             onCompareToggle={handleCompareToggle}
             onOpenApplyNow={handleApplyNow}
              onOpenBrochure={handleBrochure}
-          />
+          /> 
+       
         }
       />
 

@@ -1027,10 +1027,11 @@ const visibleRegions = regionList.slice(0, 7);
   return (
 
     <div >
-    <section className="relative w-full h-[550px] max-md:h-[260px] overflow-hidden">
-  {/* BACKGROUND IMAGE (RIGHT SIDE ONLY) */}
+   <section className="relative w-full h-[540px] max-md:h-[210px] overflow-hidden">
+
+  {/* ================= DESKTOP BACKGROUND IMAGE ================= */}
   <div
-    className="absolute inset-0"
+    className="absolute inset-0 hidden md:block"
     style={{
       backgroundImage:
         "url('https://res.cloudinary.com/alishakhan987/image/upload/v1768388043/image_luqpxl.png')",
@@ -1040,112 +1041,75 @@ const visibleRegions = regionList.slice(0, 7);
     }}
   />
 
-  {/* CONTENT WRAPPER */}
+  {/* ================= DESKTOP CONTENT (ONLY DESKTOP) ================= */}
+  <div className="relative z-10 h-full hidden md:flex items-center">
+    <div className="max-w-7xl w-full mx-auto px-6 md:px-8">
 
-<div className="relative z-10 h-full flex items-center max-md:justify-center">
-  <div className="max-w-7xl w-full mx-auto px-6 md:px-8">
+      <div className="max-w-xl">
+        <h1 className="text-slate-900 font-extrabold tracking-tight text-[44px] leading-[58px]">
+          Explore Top Colleges,
+          <br />
+          Courses &{" "}
+          <span className="text-[#F4A71D] inline-block min-w-[140px]">
+            {currentWord}
+          </span>
+        </h1>
 
-    {/* LEFT CONTENT */}
-    <div
-      className="
-        max-w-xl
-        max-md:mx-auto
-        max-md:text-center
+        <p className="text-slate-700 mt-3 text-base font-medium max-w-md">
+          Search 1000+ colleges, exams, check fees & discover your future.
+        </p>
 
-        /* MOBILE GLASS EFFECT */
-        max-md:bg-white/20
-        max-md:backdrop-blur-md
-        max-md:rounded-2xl
-        max-md:p-6
-        max-md:shadow-lg
-      "
-    >
-      {/* HEADING */}
-      <h1
-        className="
-          text-slate-900 font-extrabold tracking-tight
-          text-[22px] leading-[34px]
-          md:text-[44px] md:leading-[58px]
-        "
-      >
-        Explore Top Colleges,
-        <br />
-        Courses &{" "}
-        <span className="text-[#F4A71D] inline-block min-w-[140px]">
-          {currentWord}
-        </span>
-      </h1>
-
-      {/* SUBTEXT */}
-      <p
-        className="
-          text-slate-700
-          mt-3
-          text-sm
-          md:text-base
-          font-medium
-          max-w-md
-          max-md:mx-auto
-        "
-      >
-        Search 1000+ colleges, exams, check fees & discover your future.
-      </p>
-
-      {/* SEARCH BAR → DESKTOP ONLY (UNCHANGED) */}
-      <form
-        onSubmit={handleSearch}
-        className="
-          mt-8
-          hidden md:flex
-          items-center
-          w-full max-w-xl
-          bg-white
-          border border-slate-200
-          rounded-full
-          shadow-md
-          overflow-hidden
-        "
-      >
-        <input
-          type="text"
-          name="college"
-          placeholder="College Name"
-          value={heroFilters.college}
-          onChange={handleFilterChange}
-          className="flex-1 px-5 py-4 text-sm md:text-base outline-none"
-        />
-
-        <div className="w-px h-8 bg-slate-200" />
-
-        <input
-          type="text"
-          name="city"
-          placeholder="City"
-          value={heroFilters.city}
-          onChange={handleFilterChange}
-          className="flex-1 py-4 text-sm md:text-base outline-none"
-        />
-
-        <button
-          type="submit"
-          className="
-            px-8 py-4
-            bg-[#0F6BC9]
-            text-white
-            font-semibold
-            hover:bg-[#0c59a3]
-            transition
-          "
+        {/* SEARCH BAR – DESKTOP ONLY */}
+        <form
+          onSubmit={handleSearch}
+          className="mt-8 flex items-center w-full max-w-xl bg-white border border-slate-200 rounded-full shadow-md overflow-hidden"
         >
-          Search
-        </button>
-      </form>
+          <input
+            type="text"
+            name="college"
+            placeholder="College Name"
+            value={heroFilters.college}
+            onChange={handleFilterChange}
+            className="flex-1 px-5 py-4 text-base outline-none"
+          />
+
+          <div className="w-px h-8 bg-slate-200" />
+
+          <input
+            type="text"
+            name="city"
+            placeholder="City"
+            value={heroFilters.city}
+            onChange={handleFilterChange}
+            className="flex-1 py-4 text-base outline-none"
+          />
+
+          <button
+            type="submit"
+            className="px-8 py-4 bg-[#0F6BC9] text-white font-semibold hover:bg-[#0c59a3] transition"
+          >
+            Search
+          </button>
+        </form>
+      </div>
+
     </div>
   </div>
-</div>
 
+  {/* ================= MOBILE IMAGE ONLY ================= */}
+  <div
+    className="absolute inset-0 block md:hidden"
+    style={{
+      backgroundImage:
+        "url('https://res.cloudinary.com/alishakhan987/image/upload/v1768546657/Gemini_Generated_Image_7boobl7boobl7boo_jhzxsj.png')",
+      backgroundRepeat: "no-repeat",
+      backgroundSize: "contain",
+      backgroundPosition: "center",
+    }}
+  />
 
 </section>
+
 
 
       {/* -------------------------------------------------- */}
@@ -1153,7 +1117,7 @@ const visibleRegions = regionList.slice(0, 7);
       {/* -------------------------------------------------- */}
 
       <div className="bg-white">
-  <section className="pb-10 pt-5 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
+  <section className="pb-10 pt-2 md:pt-5 bg-white shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
       {/* HEADER */}
@@ -1922,49 +1886,70 @@ const visibleRegions = regionList.slice(0, 7);
       </section>
    
 {/* ================= STUDENT UPDATE STRIP ================= */}
-<section className="bg-white py-16">
-  <div className="max-w-7xl mx-auto px-6">
-    <div className="relative rounded-[32px] bg-gradient-to-br from-[#eef3ff] via-white to-[#f7f9fc] shadow-xl overflow-hidden">
+<section className="bg-white py-10 sm:py-16">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="relative rounded-[24px] sm:rounded-[32px] bg-gradient-to-br from-[#eef3ff] via-white to-[#f7f9fc] shadow-xl overflow-hidden">
 
-      <div className="flex flex-col lg:flex-row items-stretch">
+      {/* FORCE ROW EVEN ON MOBILE */}
+      <div className="flex flex-row items-stretch">
 
         {/* ================= LEFT : NEWS ================= */}
-        <div className="flex-1 pl-10 pr-0 py-10">
+        <div className="flex-1 pl-4 sm:pl-10 pr-2 sm:pr-0 py-6 sm:py-10">
           <div className="w-full h-full">
 
             {/* Header */}
-            <div className="mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold mb-3">
+            <div className="mb-4 sm:mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold mb-2">
                 🔔 LIVE UPDATES
               </div>
 
-              <h2 className="text-2xl font-bold text-slate-800">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-800">
                 Latest Education News
               </h2>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                 Admissions • Exams • Colleges
               </p>
             </div>
 
-            {/* News Card (FULL WIDTH – NO MAX WIDTH) */}
-            <div className="relative h-[340px] w-full rounded-2xl bg-white/90 backdrop-blur border border-slate-200 shadow-sm overflow-hidden">
-              <div className="h-full overflow-y-auto hide-scrollbar px-4 py-3 news-marquee newsscroll">
+            {/* News Card */}
+            <div className="relative h-full sm:h-[340px] w-full rounded-2xl bg-white/90 backdrop-blur border border-slate-200 shadow-sm overflow-hidden">
+              <div className="h-full overflow-y-auto hide-scrollbar px-3 sm:px-4 py-3 news-marquee newsscroll">
 
                 {[...loopingNews].map((news, i) => (
                   <div
                     key={i}
-                    className="flex gap-4 items-start py-2 px-2 rounded-xl hover:bg-blue-50 transition cursor-pointer"
+                    className="flex gap-2 sm:gap-3 items-start py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg sm:rounded-xl hover:bg-blue-50 transition cursor-pointer"
                   >
                     <img
                       src={news.imageUrl}
-                      className="w-14 h-12 rounded-lg object-cover flex-shrink-0"
                       alt=""
+                      className="
+                        w-9 h-8
+                        sm:w-14 sm:h-12
+                        rounded-md sm:rounded-lg
+                        object-cover
+                        flex-shrink-0
+                      "
                     />
-                    <div>
-                      <p className="text-sm font-semibold text-slate-800 leading-snug">
+
+                    <div className="leading-tight w-full">
+                      {/* TITLE — ONE LINE ON MOBILE */}
+                      <p
+                        className="
+                          text-[11px]
+                          sm:text-sm
+                          font-semibold
+                          text-slate-800
+                          truncate
+                          sm:whitespace-normal
+                          sm:overflow-visible
+                        "
+                      >
                         {news.title}
                       </p>
-                      <p className="text-xs text-slate-500 mt-0.5">
+
+                      {/* DATE */}
+                      <p className="text-[9.5px] sm:text-xs text-slate-500 mt-0.5">
                         {news.date}
                       </p>
                     </div>
@@ -1973,19 +1958,19 @@ const visibleRegions = regionList.slice(0, 7);
 
               </div>
 
-              {/* fade */}
-              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+              {/* Fade */}
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" />
             </div>
 
           </div>
         </div>
 
         {/* ================= RIGHT : IMAGE ================= */}
-        <div className="lg:w-[520px] w-full pl-0 pr-10 py-10 flex items-center">
+        <div className="w-[160px] sm:w-[520px] pr-3 sm:pr-10 flex h-full">
           <img
             src="./icons/latestnews.png"
             alt="Student Updates"
-            className="w-full h-full max-h-[420px] object-contain"
+            className="w-full h-full object-cover"
           />
         </div>
 
@@ -1993,6 +1978,8 @@ const visibleRegions = regionList.slice(0, 7);
     </div>
   </div>
 </section>
+
+
 
 
 
@@ -2014,18 +2001,18 @@ const visibleRegions = regionList.slice(0, 7);
             {/* SLIDER (infinite scroll) */}
             <div className="flex items-center gap-16 animate-logoScroll whitespace-nowrap">
 
-              <img src="/logos/doon.png" className="h-14  hover:grayscale-0 transition" />
-              <img src="/logos/download.jpg" className="h-14  hover:grayscale-0 transition" />
-              <img src="/logos/ITM.png" className="h-14 hover:grayscale-0 transition" />
-              <img src="/logos/NBS.jpg" className="h-14 hover:grayscale-0 transition" />
-              <img src="/logos/StudyCups.png" className="h-14 hover:grayscale-0 transition" />
+              <img src="/logos/doon.png" className="h-8 md:h-14  hover:grayscale-0 transition" />
+              <img src="/logos/download.jpg" className="h-8 md:h-14  hover:grayscale-0 transition" />
+              <img src="/logos/ITM.png" className="h-8 md:h-14 hover:grayscale-0 transition" />
+              <img src="/logos/NBS.jpg" className="h-8 md:h-14 hover:grayscale-0 transition" />
+              <img src="/logos/StudyCups.png" className="h-8 md:h-14 hover:grayscale-0 transition" />
 
               {/* Duplicate logos for infinite loop */}
-              <img src="/logos/doon.png" className="h-14 hover:grayscale-0 transition" />
-              <img src="/logos/download.jpg" className="h-14  hover:grayscale-0 transition" />
-              <img src="/logos/ITM.png" className="h-14 hover:grayscale-0 transition" />
-              <img src="/logos/NBS.jpg" className="h-14  hover:grayscale-0 transition" />
-              <img src="/logos/StudyCups.png" className="h-14 hover:grayscale-0 transition" />
+              <img src="/logos/doon.png" className="h-8 md:h-14 hover:grayscale-0 transition" />
+              <img src="/logos/download.jpg" className="h-8 md:h-14  hover:grayscale-0 transition" />
+              <img src="/logos/ITM.png" className="h-8 md:h-14 hover:grayscale-0 transition" />
+              <img src="/logos/NBS.jpg" className="h-8 md:h-14  hover:grayscale-0 transition" />
+              <img src="/logos/StudyCups.png" className="h-8 md:h-14 hover:grayscale-0 transition" />
 
             </div>
           </div>

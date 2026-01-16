@@ -53,6 +53,14 @@ const slug = college.name
 
 const slugId = `${slug}--${college.id}`;
 
+const rankingText =
+  typeof college.ranking === "string"
+    ? college.ranking
+    : college.rawScraped?.ranking_data
+      ? Object.values(college.rawScraped.ranking_data)
+          .map((r: any) => r.ranking)
+          .join(" | ")
+      : "N/A";
 
 
   return (
@@ -128,10 +136,10 @@ const slugId = `${slug}--${college.id}`;
           </span>
         </p>
 
-        <p className="text-[12px] text-slate-500 mt-2 truncate">
-          Ranked {college.ranking ?? college.rawScraped?.ranking_data?.[0]?.ranking ?? "N/A"}
+      <p className="text-[12px] text-slate-500 mt-2 truncate">
+  Ranked {rankingText}
+</p>
 
-        </p>
 
         <div className="border-t my-2 text-slate-500"></div>
 

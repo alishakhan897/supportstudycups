@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import type { View, College } from "../types";
 import { getCollegeImages } from "../collegeImages";
 import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; 
+import FlexibleBlockRenderer from './FlexibleBlockRenderer'
 
 import {
   Monitor,
@@ -76,33 +77,199 @@ const InfoRow = ({ label, value }: any) => (
 
 const buildRankingTable = (rankingData: any[]) => {
   const yearsSet = new Set<string>();
-  const rowsMap: any = {};
+  const rowsMap: Record<string, Record<string, string[]>> = {};
 
-  rankingData.forEach((entry) => {
-    const stream = entry.stream || "Other";
+  rankingData.forEach(entry => {
+    const stream =
+      typeof entry.stream === "string" ? entry.stream : "Other";
 
-    const text = entry.ranking.replace(/\s+/g, " ").trim();
+    const rankingLines = normalizeRankingText(entry.ranking);
 
-    const yearMatch = text.match(/(20\d{2})/);
-    const year = yearMatch ? yearMatch[1] : "NA";
+    // extract year from each line
+    rankingLines.forEach(line => {
+      const match = line.match(/(20\d{2})/);
+      const year = match ? match[1] : "NA";
 
-    yearsSet.add(year);
+      yearsSet.add(year);
 
-    if (!rowsMap[stream]) rowsMap[stream] = {};
-    rowsMap[stream][year] = text;
+      if (!rowsMap[stream]) rowsMap[stream] = {};
+      if (!rowsMap[stream][year]) rowsMap[stream][year] = [];
+
+      rowsMap[stream][year].push(line);
+    });
   });
 
   const years = Array.from(yearsSet).sort((a, b) => b.localeCompare(a));
-
   return { years, rows: rowsMap };
 };
+
+
+
 const buildCourseSlug = (name: string) => {
   return encodeURIComponent(
     name
       .toLowerCase()
       .trim()
   );
+}; 
+
+type DescriptionBlock =
+  | { type: "text"; content: string }
+  | { type: "list"; items: string[] }
+  | { type: "table"; columns: string[]; rows: string[][] };
+
+const normalizeDescription = (description: any): DescriptionBlock[] => {
+  if (!description) return [];
+
+  const blocks: DescriptionBlock[] = [];
+
+  /* ================= CASE 1: PURE STRING ================= */
+  if (typeof description === "string") {
+    return [{ type: "text", content: description }];
+  }
+
+  /* ================= CASE 2: OBJECT ================= */
+  if (typeof description === "object") {
+
+    // 🔑 FIX 1: numeric / unknown keys → TEXT
+    Object.keys(description).forEach((key) => {
+      if (key !== "blocks" && typeof description[key] === "string") {
+        blocks.push({
+          type: "text",
+          content: description[key]
+        });
+      }
+    });
+
+    // 🔑 FIX 2: structured blocks
+    if (Array.isArray(description.blocks)) {
+      description.blocks.forEach((block: any) => {
+
+        if (block.type === "text" && block.content) {
+          blocks.push({
+            type: "text",
+            content: block.content
+          });
+        }
+
+        if (block.type === "list" && Array.isArray(block.items)) {
+          blocks.push({
+            type: "list",
+            items: block.items
+          });
+        }
+
+        if (
+          block.type === "table" &&
+          Array.isArray(block.data?.columns) &&
+          Array.isArray(block.data?.rows)
+        ) {
+          blocks.push({
+            type: "table",
+            columns: block.data.columns,
+            rows: block.data.rows
+          });
+        }
+      });
+    }
+
+    return blocks;
+  }
+
+  return [];
 };
+
+const normalizeRankingText = (ranking: any): string[] => {
+  // case 1: simple string
+  if (typeof ranking === "string") {
+    return ranking
+      .split("#")
+      .map(t => t.trim())
+      .filter(Boolean);
+  }
+
+  // case 2: object {0:"",1:""}
+  if (ranking && typeof ranking === "object") {
+    return Object.values(ranking)
+      .filter(v => typeof v === "string")
+      .flatMap(v =>
+        v
+          .split("#")
+          .map(t => t.trim())
+          .filter(Boolean)
+      );
+  }
+
+  return [];
+};
+
+const renderFlexibleText = (value: any): React.ReactNode => {
+  // Case 1: string
+  if (typeof value === "string") {
+    return value;
+  }
+
+  // Case 2: number
+  if (typeof value === "number") {
+    return String(value);
+  }
+
+  // Case 3: array
+  if (Array.isArray(value)) {
+    return value.map((v, i) => (
+      <div key={i}>{renderFlexibleText(v)}</div>
+    ));
+  }
+
+  // Case 4: object (THIS IS YOUR CASE)
+  if (value && typeof value === "object") {
+    return Object.values(value).map((v, i) => (
+      <div key={i}>{renderFlexibleText(v)}</div>
+    ));
+  }
+
+  return "-";
+};
+const renderRankingCell = (value: any) => {
+  // ✅ CASE 1: array of strings (MAIN CASE)
+  if (Array.isArray(value)) {
+    return value.length > 0 ? (
+      <ul className="list-disc pl-4 space-y-1">
+        {value.map((v, i) => (
+          <li key={i} className="text-sm">
+            {v}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      "-"
+    );
+  }
+
+  // ✅ CASE 2: single string
+  if (typeof value === "string") {
+    return <div className="whitespace-pre-line">{value}</div>;
+  }
+
+  // ✅ CASE 3: object (safety for bad data)
+  if (value && typeof value === "object") {
+    return (
+      <ul className="list-disc pl-4 space-y-1">
+        {Object.values(value).map((v, i) => (
+          <li key={i} className="text-sm">
+            {String(v)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return "-";
+};
+
+
+
+
 
 const DetailPage: React.FC<DetailPageProps> = ({
   colleges,
@@ -155,6 +322,12 @@ const DetailPage: React.FC<DetailPageProps> = ({
       </div>
     );
   }
+  
+  const descriptionBlocks = useMemo(() => {
+  return normalizeDescription(
+    detail?.description ?? college?.description
+  );
+}, [detail?.description, college?.description]);
 
 
   const getInitials = (name: string) => {
@@ -230,28 +403,27 @@ const DetailPage: React.FC<DetailPageProps> = ({
   };
 
   const cleanedAboutText = useMemo(() => {
-    const raw = detail?.rawScraped?.about_text || college?.description || "";
+  const raw =
+    detail?.rawScraped?.about_text ?? college?.description ?? "";
 
-    if (raw.includes("Read More")) {
-      return raw.split("Read More")[0].trim();
-    }
+  // 🛡️ SAFETY GUARD
+  if (typeof raw !== "string") return "";
 
-    return raw.trim();
-  }, [detail?.rawScraped?.about_text, college?.description]);
+  if (raw.includes("Read More")) {
+    return raw.split("Read More")[0].trim();
+  }
 
-  const aboutText =
-    detail?.rawScraped?.about_text || college?.description || "";
+  return raw.trim();
+}, [detail?.rawScraped?.about_text, college?.description]);
 
-  const shortOverview = useMemo(() => {
-    const text = aboutText || "";
-    const sentences = text.split(".");
-    return sentences.slice(0, 2).join(".") + ".";
-  }, [aboutText]);
+
+const textBlocks = descriptionBlocks.filter(b => b.type === "text");
+const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
 
   useEffect(() => {
     const fetchSuggestedColleges = async () => {
       try {
-        const res = await fetch("https://studycupsbackend-production.up.railway.app/api/colleges?limit=20");
+        const res = await fetch("https://studycupsbackend-production.up.railway.app/api/colleges");
         const json = await res.json();
 
         if (json.success) {
@@ -1479,59 +1651,112 @@ const DetailPage: React.FC<DetailPageProps> = ({
 
         return (
           <div className="space-y-6">
-            {/* ================= About ================= */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6">
-              <h3 className="text-xl font-bold mb-3">
-                About {college.name}
-              </h3>
+        
 
-              <p className="text-slate-600 leading-relaxed">
-                {loading
-                  ? "Loading..."
-                  : showFullOverview
-                    ? (cleanedAboutText || "No description available.")
-                      .replace(/collegedunia/gi, "Studycups")
-                    : cleanedAboutText
-                      ? (
-                        cleanedAboutText.split(".").slice(0, 2).join(".") + "."
-                      ).replace(/collegedunia/gi, "Studycups")
-                      : "No description available."}
-              </p>
+<div className="bg-white border border-slate-200 rounded-2xl p-6">
+  <h3 className="text-xl font-bold mb-4">
+    About {college.name}
+  </h3>
+
+  {/* ================= TEXT (COLLAPSIBLE ONLY) ================= */}
+  {textBlocks.length > 0 && (
+    <div
+      className={`relative overflow-hidden transition-all duration-300
+        ${showFullOverview ? "max-h-none" : "max-h-[7.5rem]"}
+      `}
+    >
+      <div className="space-y-4 text-sm text-slate-700 leading-relaxed">
+        {textBlocks.map((block, i) => (
+          <p key={i}>
+            {block.content.replace(/collegedunia/gi, "Studycups")}
+          </p>
+        ))}
+      </div>
+
+      {!showFullOverview && (
+        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
+      )}
+    </div>
+  )}
+
+  {/* READ MORE / LESS */}
+  {textBlocks.length > 0 && (
+    <button
+      onClick={() => setShowFullOverview(!showFullOverview)}
+      className="mt-3 text-blue-600 font-semibold text-sm"
+    >
+      {showFullOverview ? "Read Less" : "Read More"}
+    </button>
+  )}
+
+  {/* ================= NON-TEXT BLOCKS (ALWAYS VISIBLE) ================= */}
+  <div className="mt-6 space-y-6">
+
+    {nonTextBlocks.map((block, i) => {
+
+      /* ===== LIST ===== */
+      if (block.type === "list") {
+        return (
+          <ul key={i} className="list-disc pl-6 text-sm text-slate-700 space-y-1">
+            {block.items.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+        );
+      }
+
+      /* ===== TABLE ===== */
+      if (block.type === "table") {
+        return (
+          <div key={i} className="overflow-x-auto border rounded-xl">
+            <table className="w-full border-collapse text-sm">
+              <thead className="bg-slate-100">
+                <tr>
+                  {block.columns.map((col, idx) => (
+                    <th
+                      key={idx}
+                      className="border p-3 text-left font-semibold"
+                    >
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {block.rows.map((row, rIdx) => (
+                  <tr key={rIdx} className="hover:bg-slate-50">
+                    {row.map((cell, cIdx) => (
+                      <td key={cIdx} className="border p-3">
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+
+      return null;
+    })}
+  </div>
+
+  {/* ================= BASIC INFO ================= */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 text-sm">
+    <InfoRow label="Established" value={college.established} />
+    <InfoRow label="Type" value={detail?.type || college.type || "N/A"} />
+    <InfoRow label="Location" value={college.location} />
+    <InfoRow
+      label="Rating"
+      value={`${college.rating}/5 (${college.reviewCount})`}
+    />
+  </div>
+</div>
 
 
-              {!showFullOverview && (
-                <button
-                  onClick={() => setShowFullOverview(true)}
-                  className="mt-3 text-blue-600 font-semibold text-sm"
-                >
-                  Read More
-                </button>
-              )}
 
-              {showFullOverview && (
-                <button
-                  onClick={() => setShowFullOverview(false)}
-                  className="mt-3 text-blue-600 font-semibold text-sm"
-                >
-                  Read Less
-                </button>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 text-sm">
-
-                <InfoRow label="Established" value={college.established} />
-                <InfoRow
-                  label="Type"
-                  value={detail?.type || college.type || "N/A"}
-                />
-
-                <InfoRow label="Location" value={college.location} />
-                <InfoRow
-                  label="Rating"
-                  value={`${college.rating}/5 (${college.reviewCount})`}
-                />
-              </div>
-            </div>
 
             {/* ================= Ranking ================= */}
             {detail?.rawScraped?.ranking_data?.length > 0 && (
@@ -1560,24 +1785,23 @@ const DetailPage: React.FC<DetailPageProps> = ({
                         </tr>
                       </thead>
 
-                      <tbody>
-                        {Object.keys(rows).map((stream) => (
-                          <tr key={stream}>
-                            <td className="border p-2 font-semibold">
-                              {stream}
-                            </td>
+                    <tbody>
+  {Object.keys(rows).map(stream => (
+    <tr key={stream}>
+      <td className="border p-2 font-semibold">
+        {stream}
+      </td>
 
-                            {years.map((year) => (
-                              <td
-                                key={year}
-                                className="border p-2 text-center"
-                              >
-                                {rows[stream][year] || "-"}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
+      {years.map(year => (
+        <td key={year} className="border p-2 align-top">
+  {renderRankingCell(rows[stream][year])}
+</td>
+
+      ))}
+    </tr>
+  ))}
+</tbody>
+
                     </table>
                   );
                 })()}
