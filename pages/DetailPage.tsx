@@ -2569,25 +2569,34 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
 
         <div className="relative h-[250px] sm:h-[260px] w-full overflow-hidden rounded-[20px]">
 <button
-  onClick={handleBack}
+  onClick={() => navigate(-1)}
   className="
     absolute
     top-4
     left-4
     z-40
-    flex items-center gap-2
-    px-3 py-1.5
+    flex items-center
+    gap-2
+    px-2 md:px-3
+    py-2
     bg-black/60
     hover:bg-black/80
     text-white
-    text-sm
-    rounded-lg
+    rounded-full md:rounded-lg
     backdrop-blur
     transition
   "
+  aria-label="Back"
 >
-  ← Back to Colleges
+  {/* Arrow – always visible */}
+  <span className="text-lg leading-none">←</span>
+
+  {/* Text – desktop only */}
+  <span className="hidden md:inline text-sm font-semibold">
+    Back to Colleges
+  </span>
 </button>
+
 
           <img
             src={college.imageUrl}
