@@ -364,17 +364,18 @@ col.rawScraped.courses.forEach((cr) => {
        <div className="flex gap-8 items-start">
         {/* FILTERS */}
        {/* LEFT FILTER SIDEBAR (Desktop) */}
-<aside className="hidden md:block w-[260px] sticky top-28">
-  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+<aside className="hidden md:block w-[260px] sticky top-28 h-[calc(100vh-7rem)]">
+  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full flex flex-col">
 
-    {/* HEADER */}
-    <div className="px-5 py-4 border-b bg-slate-50">
+    {/* HEADER (Sticky inside sidebar) */}
+    <div className="px-5 py-4 border-b bg-slate-50 shrink-0">
       <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">
         Filters
       </h3>
     </div>
 
-    <div className="p-5 space-y-6">
+    {/* SCROLLABLE FILTER CONTENT */}
+    <div className="p-5 space-y-6 overflow-y-auto">
 
       {/* STREAM */}
       <div>
@@ -383,7 +384,7 @@ col.rawScraped.courses.forEach((cr) => {
         </h4>
 
         <div className="space-y-2">
-          {streams.map(stream => (
+          {streams.map((stream) => (
             <label
               key={stream}
               className={`
@@ -421,7 +422,7 @@ col.rawScraped.courses.forEach((cr) => {
         </h4>
 
         <div className="space-y-2">
-          {levels.map(level => (
+          {levels.map((level) => (
             <label
               key={level}
               className={`
@@ -463,10 +464,10 @@ col.rawScraped.courses.forEach((cr) => {
           Clear Filters
         </button>
       )}
-
     </div>
   </div>
 </aside>
+
 
 
 
