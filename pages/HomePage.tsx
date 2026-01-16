@@ -1886,99 +1886,102 @@ const visibleRegions = regionList.slice(0, 7);
       </section>
    
 {/* ================= STUDENT UPDATE STRIP ================= */}
-<section className="bg-white py-10 sm:py-16">
+<section className="bg-slate-50 py-6 sm:py-16">
   <div className="max-w-7xl mx-auto px-4 sm:px-6">
-    <div className="relative rounded-[24px] sm:rounded-[32px] bg-gradient-to-br from-[#eef3ff] via-white to-[#f7f9fc] shadow-xl overflow-hidden">
+    <div className="relative rounded-3xl bg-white shadow-xl shadow-blue-900/5 overflow-hidden border border-slate-100">
+      
+      {/* Container: Always Row */}
+      <div className="flex flex-row min-h-[300px] sm:min-h-[450px]">
 
-      {/* FORCE ROW EVEN ON MOBILE */}
-      <div className="flex flex-row items-stretch">
-
-        {/* ================= LEFT : NEWS ================= */}
-        <div className="flex-1 pl-4 sm:pl-10 pr-2 sm:pr-0 py-6 sm:py-10">
-          <div className="w-full h-full">
-
-            {/* Header */}
-            <div className="mb-4 sm:mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold mb-2">
-                🔔 LIVE UPDATES
-              </div>
-
-              <h2 className="text-lg sm:text-xl font-bold text-slate-800">
-                Latest Education News
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Admissions • Exams • Colleges
-              </p>
+        {/* ================= LEFT : NEWS (60% on Mobile) ================= */}
+        <div className="w-[62%] sm:w-[55%] p-4 sm:p-10 flex flex-col">
+          
+          {/* Header */}
+          <div className="mb-4 sm:mb-6">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-[9px] sm:text-xs font-bold uppercase tracking-wider mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+              Live Updates
             </div>
+            <h2 className="text-[15px] sm:text-2xl font-bold text-slate-900 leading-tight">
+              Latest Education <span className="text-blue-600">News</span>
+            </h2>
+          </div>
 
-            {/* News Card */}
-            <div className="relative h-full sm:h-[340px] w-full rounded-2xl bg-white/90 backdrop-blur border border-slate-200 shadow-sm overflow-hidden">
-              <div className="h-full overflow-y-auto hide-scrollbar px-3 sm:px-4 py-3 news-marquee newsscroll">
+          {/* News List */}
+          <div className="relative flex-1 overflow-hidden">
+            <div className="h-[220px] sm:h-[320px] overflow-y-auto pr-1 space-y-2 custom-scrollbar">
+              {loopingNews.map((news, i) => (
+                <div
+                  key={i}
+                  className="flex gap-2 sm:gap-4 items-center p-1.5 sm:p-2 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 cursor-pointer"
+                >
+                  {/* Thumbnail */}
+                  <img
+                    src={news.imageUrl}
+                    alt=""
+                    className="w-10 h-10 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0 shadow-sm"
+                  />
 
-                {[...loopingNews].map((news, i) => (
-                  <div
-                    key={i}
-                    className="flex gap-2 sm:gap-3 items-start py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg sm:rounded-xl hover:bg-blue-50 transition cursor-pointer"
-                  >
-                    <img
-                      src={news.imageUrl}
-                      alt=""
-                      className="
-                        w-9 h-8
-                        sm:w-14 sm:h-12
-                        rounded-md sm:rounded-lg
-                        object-cover
-                        flex-shrink-0
-                      "
-                    />
-
-                    <div className="leading-tight w-full">
-                      {/* TITLE — ONE LINE ON MOBILE */}
-                      <p
-                        className="
-                          text-[11px]
-                          sm:text-sm
-                          font-semibold
-                          text-slate-800
-                          truncate
-                          sm:whitespace-normal
-                          sm:overflow-visible
-                        "
-                      >
-                        {news.title}
-                      </p>
-
-                      {/* DATE */}
-                      <p className="text-[9.5px] sm:text-xs text-slate-500 mt-0.5">
-                        {news.date}
-                      </p>
-                    </div>
+                  <div className="min-w-0">
+                    {/* Title: 2 Lines on mobile for professional look */}
+                    <p className="text-[10px] sm:text-[15px] font-semibold text-slate-800 leading-[1.3] line-clamp-2">
+                      {news.title}
+                    </p>
+                    <p className="text-[8px] sm:text-xs text-slate-500 mt-0.5">
+                      {news.date}
+                    </p>
                   </div>
-                ))}
-
-              </div>
-
-              {/* Fade */}
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                </div>
+              ))}
             </div>
-
+            
+            {/* Bottom Gradient Fade */}
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" />
           </div>
         </div>
 
-        {/* ================= RIGHT : IMAGE ================= */}
-        <div className="w-[160px] sm:w-[520px] pr-3 sm:pr-10 flex h-full">
+        {/* ================= RIGHT : IMAGE (38% on Mobile) ================= */}
+        <div className="w-full sm:w-[45%] relative">
           <img
             src="./icons/latestnews.png"
-            alt="Student Updates"
-            className="w-full h-full object-cover"
-          />
+            alt="Student"
+            className="w-[180px] xs:w-[200px]
+      h-auto
+      object-contain
+      sm:absolute sm:inset-0 sm:w-full sm:h-full
+      sm:object-cover sm:object-center"
+          /> 
+          <img
+    src="https://media.gettyimages.com/id/1920428247/vector/online-examinations-illustrations-concept-trendy-vector-style-confirmation.jpg?s=612x612&w=0&k=20&c=yOGQmJD3DcSh4A1Tb4pqqW6aHc8DS4ONLH2MH7temtY="
+    alt="Education Illustration"
+    className="
+      block sm:hidden
+      w-full
+      max-w-[260px]
+      h-auto
+      opacity-90
+    "
+  />
+          {/* Subtle overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent" />
         </div>
 
       </div>
     </div>
   </div>
-</section>
 
+  <style jsx>{`
+    .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  `}</style>
+</section>
 
 
 
