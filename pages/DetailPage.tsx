@@ -366,6 +366,9 @@ const DetailPage: React.FC<DetailPageProps> = ({
     );
   };
 
+const handleBack = () => {
+  navigate(-1); // previous page (college listing)
+};
 
 
   const sliceForMobile = (arr: string[], count = 5) =>
@@ -2565,6 +2568,26 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
       <div className="relative mt-[90px] w-full max-w-7xl mx-auto px-3 sm:px-4">
 
         <div className="relative h-[250px] sm:h-[260px] w-full overflow-hidden rounded-[20px]">
+<button
+  onClick={handleBack}
+  className="
+    absolute
+    top-4
+    left-4
+    z-40
+    flex items-center gap-2
+    px-3 py-1.5
+    bg-black/60
+    hover:bg-black/80
+    text-white
+    text-sm
+    rounded-lg
+    backdrop-blur
+    transition
+  "
+>
+  ← Back to Colleges
+</button>
 
           <img
             src={college.imageUrl}
