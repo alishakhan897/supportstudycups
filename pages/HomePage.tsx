@@ -1027,7 +1027,7 @@ const visibleRegions = regionList.slice(0, 7);
   return (
 
     <div >
-   <section className="relative w-full h-[540px] max-md:h-[210px] overflow-hidden">
+ <section className="relative w-full h-[540px] max-md:h-[210px] overflow-hidden bg-white">
 
   {/* ================= DESKTOP BACKGROUND IMAGE ================= */}
   <div
@@ -1040,6 +1040,8 @@ const visibleRegions = regionList.slice(0, 7);
       backgroundPosition: "right center",
     }}
   />
+{/* ================= WHITE GRADIENT BLEND (DESKTOP ONLY) ================= */}
+<div className="absolute inset-0 hidden md:block bg-gradient-to-r from-white via-white/60 to-transparent" />
 
   {/* ================= DESKTOP CONTENT (ONLY DESKTOP) ================= */}
   <div className="relative z-10 h-full hidden md:flex items-center">

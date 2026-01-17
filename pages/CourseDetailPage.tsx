@@ -76,13 +76,7 @@ const matchedCourses = useMemo(() => {
 
 
 const course = matchedCourses[0] || null;
-if (!course) {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      Course not found
-    </div>
-  );
-}
+
 
 
 const collegesOfferingCourse = useMemo(() => {
@@ -117,6 +111,14 @@ const collegesOfferingCourse = useMemo(() => {
 };
 
 
+// ✅ SAFE GUARD — AFTER ALL HOOKS
+if (!course) {
+  return (
+    <div className="min-h-screen flex items-center justify-center text-slate-500">
+      loading course details...
+    </div>
+  );
+}
 
 
   return (

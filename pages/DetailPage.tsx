@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import type { View, College } from "../types";
 import { getCollegeImages } from "../collegeImages";
 import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import FlexibleBlockRenderer from './FlexibleBlockRenderer'
 
 import {
@@ -43,7 +43,7 @@ interface DetailPageProps {
   colleges: College[];
   compareList: string[];
   onCompareToggle: (id: string) => void;
-  onOpenApplyNow: () => void; 
+  onOpenApplyNow: () => void;
   onOpenBrochure: () => void;
 }
 
@@ -75,33 +75,55 @@ const InfoRow = ({ label, value }: any) => (
   </div>
 );
 
-const buildRankingTable = (rankingData: any[]) => {
+const buildRankingTable = (rawData: any[]) => {
+  const table: Record<string, Record<string, any>> = {};
   const yearsSet = new Set<string>();
-  const rowsMap: Record<string, Record<string, string[]>> = {};
 
-  rankingData.forEach(entry => {
-    const stream =
-      typeof entry.stream === "string" ? entry.stream : "Other";
+  rawData.forEach(entry => {
+    const stream = entry.stream || "Overall";
+    const lines = normalizeRankingText(entry.ranking);
 
-    const rankingLines = normalizeRankingText(entry.ranking);
+    lines.forEach(line => {
+      const parsed = parseRankingLine(line);
+      if (!parsed.year) return;
 
-    // extract year from each line
-    rankingLines.forEach(line => {
-      const match = line.match(/(20\d{2})/);
-      const year = match ? match[1] : "NA";
+      yearsSet.add(parsed.year);
 
-      yearsSet.add(year);
+      // Ignore international here (optional: separate table later)
+      if (parsed.isInternational) return;
 
-      if (!rowsMap[stream]) rowsMap[stream] = {};
-      if (!rowsMap[stream][year]) rowsMap[stream][year] = [];
+      // Only India rankings participate in main table
+      if (!parsed.isIndia) return;
 
-      rowsMap[stream][year].push(line);
+      if (!table[stream]) table[stream] = {};
+
+      const current = table[stream][parsed.year];
+
+      // ✅ BEST ranking per year (lower rank = better)
+      if (!current || isBetterRank(parsed.rank!, current.rank)) {
+        table[stream][parsed.year] = {
+          rank: parsed.rank,
+          main: parsed.raw,
+          state: current?.state || null
+        };
+      }
+
+      // ✅ Attach state ranking only ONCE
+      if (
+        parsed.isState &&
+        table[stream][parsed.year] &&
+        !table[stream][parsed.year].state
+      ) {
+        table[stream][parsed.year].state = parsed.raw;
+      }
     });
   });
 
   const years = Array.from(yearsSet).sort((a, b) => b.localeCompare(a));
-  return { years, rows: rowsMap };
+  return { table, years };
 };
+
+
 
 
 
@@ -111,7 +133,7 @@ const buildCourseSlug = (name: string) => {
       .toLowerCase()
       .trim()
   );
-}; 
+};
 
 type DescriptionBlock =
   | { type: "text"; content: string }
@@ -123,15 +145,15 @@ const normalizeDescription = (description: any): DescriptionBlock[] => {
 
   const blocks: DescriptionBlock[] = [];
 
-  /* ================= CASE 1: PURE STRING ================= */
+  // ✅ CASE 1: description is string
   if (typeof description === "string") {
     return [{ type: "text", content: description }];
   }
 
-  /* ================= CASE 2: OBJECT ================= */
+  // ✅ CASE 2: description is object
   if (typeof description === "object") {
 
-    // 🔑 FIX 1: numeric / unknown keys → TEXT
+    // handle numeric / unknown keys → text
     Object.keys(description).forEach((key) => {
       if (key !== "blocks" && typeof description[key] === "string") {
         blocks.push({
@@ -141,10 +163,11 @@ const normalizeDescription = (description: any): DescriptionBlock[] => {
       }
     });
 
-    // 🔑 FIX 2: structured blocks
+    // handle structured blocks safely
     if (Array.isArray(description.blocks)) {
       description.blocks.forEach((block: any) => {
 
+        // TEXT
         if (block.type === "text" && block.content) {
           blocks.push({
             type: "text",
@@ -152,13 +175,18 @@ const normalizeDescription = (description: any): DescriptionBlock[] => {
           });
         }
 
-        if (block.type === "list" && Array.isArray(block.items)) {
+        // LIST (SAFE)
+        if (
+          block.type === "list" &&
+          Array.isArray(block.data?.items)
+        ) {
           blocks.push({
             type: "list",
-            items: block.items
+            items: block.data.items
           });
         }
 
+        // TABLE (SAFE)
         if (
           block.type === "table" &&
           Array.isArray(block.data?.columns) &&
@@ -172,12 +200,37 @@ const normalizeDescription = (description: any): DescriptionBlock[] => {
         }
       });
     }
-
-    return blocks;
   }
 
-  return [];
+  return blocks;
 };
+
+const parseRankingLine = (line: string) => {
+  const rankMatch = line.match(/#(\d+|\d+-\d+)/);
+  const yearMatch = line.match(/(20\d{2})/);
+
+  return {
+    raw: line.trim(),
+    rank: rankMatch ? rankMatch[1] : null,
+    year: yearMatch ? yearMatch[1] : null,
+    isIndia: /india/i.test(line),
+    isState: /uttar pradesh/i.test(line),
+    isInternational: /international/i.test(line)
+  };
+};
+const isBetterRank = (a?: string, b?: string) => {
+  if (!a) return false;
+  if (!b) return true;
+
+  const aNum = parseInt(a);
+  const bNum = parseInt(b);
+
+  if (isNaN(aNum)) return false;
+  if (isNaN(bNum)) return true;
+
+  return aNum < bNum; // smaller = better
+};
+
 
 const normalizeRankingText = (ranking: any): string[] => {
   // case 1: simple string
@@ -315,19 +368,14 @@ const DetailPage: React.FC<DetailPageProps> = ({
     () => colleges.find(c => String(c.id) === String(id)),
     [colleges, id]
   );
-  if (!college) {
-    return (
-      <div className="mt-40 text-center text-slate-500">
-        College not found
-      </div>
-    );
-  }
-  
+
+
+
   const descriptionBlocks = useMemo(() => {
-  return normalizeDescription(
-    detail?.description ?? college?.description
-  );
-}, [detail?.description, college?.description]);
+    return normalizeDescription(
+      detail?.description ?? college?.description
+    );
+  }, [detail?.description, college?.description]);
 
 
   const getInitials = (name: string) => {
@@ -366,9 +414,9 @@ const DetailPage: React.FC<DetailPageProps> = ({
     );
   };
 
-const handleBack = () => {
-  navigate(-1); // previous page (college listing)
-};
+  const handleBack = () => {
+    navigate(-1); // previous page (college listing)
+  };
 
 
   const sliceForMobile = (arr: string[], count = 5) =>
@@ -381,18 +429,12 @@ const handleBack = () => {
 
 
 
-  useEffect(() => {
-    if (detail?.rawScraped?.questions_answers?.length > 0) {
-      setQnaOpen(
-        Array(detail.rawScraped.questions_answers.length).fill(false)
-      );
-    }
-  }, [detail]);
 
 
 
   // QNA STATES FIX (ADDED)
   const [qnaOpen, setQnaOpen] = useState<boolean[]>([]);
+
 
   useEffect(() => {
     if (detail?.rawScraped?.qna?.length > 0) {
@@ -406,34 +448,37 @@ const handleBack = () => {
   };
 
   const cleanedAboutText = useMemo(() => {
-  const raw =
-    detail?.rawScraped?.about_text ?? college?.description ?? "";
+    const raw =
+      detail?.rawScraped?.about_text ?? college?.description ?? "";
 
-  // 🛡️ SAFETY GUARD
-  if (typeof raw !== "string") return "";
+    // 🛡️ SAFETY GUARD
+    if (typeof raw !== "string") return "";
 
-  if (raw.includes("Read More")) {
-    return raw.split("Read More")[0].trim();
-  }
+    if (raw.includes("Read More")) {
+      return raw.split("Read More")[0].trim();
+    }
 
-  return raw.trim();
-}, [detail?.rawScraped?.about_text, college?.description]);
+    return raw.trim();
+  }, [detail?.rawScraped?.about_text, college?.description]);
 
 
-const textBlocks = descriptionBlocks.filter(b => b.type === "text");
-const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
+  const textBlocks = descriptionBlocks.filter(b => b.type === "text");
+  const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
 
   useEffect(() => {
+    if (!college) return;
+
     const fetchSuggestedColleges = async () => {
       try {
-        const res = await fetch("https://studycupsbackend-production.up.railway.app/api/colleges");
+        const res = await fetch(
+          "https://studycupsbackend-production.up.railway.app/api/colleges"
+        );
         const json = await res.json();
 
         if (json.success) {
           const filtered = json.data.filter(
             (c: College) => c.id !== college.id
           );
-
           setSuggestedColleges(getRandomColleges(filtered, 4));
         }
       } catch (err) {
@@ -442,20 +487,25 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
     };
 
     fetchSuggestedColleges();
-  }, [college.id]);
+  }, [college]);
 
-  const slug = useMemo(
-    () =>
-      college.name
-        .toLowerCase()
-        .replace(/\([^)]*\)/g, "")
-        .replace(/[^a-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-"),
-    [college.name]
-  );
 
-  const isCompared = compareList.includes(college.id);
+  const slug = useMemo(() => {
+    if (!college?.name) return "";
+
+    return college.name
+      .toLowerCase()
+      .replace(/\([^)]*\)/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+  }, [college?.name]);
+
+
+  const isCompared = college
+    ? compareList.includes(college.id)
+    : false;
+
 
   const placementPercentage = useMemo(() => {
     const highest = Number(college?.placements?.highestPackage);
@@ -491,6 +541,8 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
 
 
   useEffect(() => {
+    if (!college?.id) return;
+
     const load = async () => {
       setLoading(true);
       try {
@@ -499,11 +551,16 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
         );
         const json = await res.json();
         if (json.success) setDetail(json.data);
-      } catch { }
-      setLoading(false);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
+
     load();
-  }, [college.id]);
+  }, [college]);
+
 
   const handleDownloadBrochure = (collegeId: number) => {
     window.open(
@@ -527,6 +584,14 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
     { stars: 2, percent: 6 },
     { stars: 1, percent: 0 },
   ];
+  const rankingDataArray = useMemo(() => {
+    const raw = detail?.rawScraped?.ranking_data;
+
+    if (Array.isArray(raw)) return raw;
+    if (raw && typeof raw === "object") return Object.values(raw);
+
+    return [];
+  }, [detail?.rawScraped?.ranking_data]);
 
 
 
@@ -1423,19 +1488,16 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
               {/* =============== Category Ratings =============== */}
               <div className="mt-6 grid grid-cols-3 md:grid-cols-6 gap-4">
 
-                {detail?.rawScraped?.rating_categories?.slice(0, 6).map((item, i) => (
+                {Array.isArray(detail?.rawScraped?.rating_categories) &&
+                  detail.rawScraped.rating_categories.slice(0, 6).map((item: any, i: number) => (
+                    <div key={i} className="flex flex-col items-center p-2 text-center">
+                      <p className="text-[12px] text-slate-500">{item.label}</p>
+                      <p className="text-sm font-bold text-slate-900 mt-1">
+                        {item.rating}★
+                      </p>
+                    </div>
+                  ))}
 
-                  <div
-                    key={i}
-                    className="flex flex-col items-center p-2 text-center"
-                  >
-                    <p className="text-[12px] text-slate-500">{item.label}</p>
-                    <p className="text-sm font-bold text-slate-900 mt-1">
-                      {item.rating}★
-                    </p>
-                  </div>
-
-                ))}
 
               </div>
 
@@ -1654,122 +1716,124 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
 
         return (
           <div className="space-y-6">
-        
 
-<div className="bg-white border border-slate-200 rounded-2xl p-6">
-  <h3 className="text-xl font-bold mb-4">
-    About {college.name}
-  </h3>
 
-  {/* ================= TEXT (COLLAPSIBLE ONLY) ================= */}
-  {textBlocks.length > 0 && (
-    <div
-      className={`relative overflow-hidden transition-all duration-300
+            <div className="bg-white border border-slate-200 rounded-2xl p-6">
+              <h3 className="text-xl font-bold mb-4">
+                About {college.name}
+              </h3>
+
+              {/* ================= TEXT (COLLAPSIBLE ONLY) ================= */}
+              {textBlocks.length > 0 && (
+                <div
+                  className={`relative overflow-hidden transition-all duration-300
         ${showFullOverview ? "max-h-none" : "max-h-[7.5rem]"}
       `}
-    >
-      <div className="space-y-4 text-sm text-slate-700 leading-relaxed">
-        {textBlocks.map((block, i) => (
-          <p key={i}>
-            {block.content.replace(/collegedunia/gi, "Studycups")}
-          </p>
-        ))}
-      </div>
-
-      {!showFullOverview && (
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
-      )}
-    </div>
-  )}
-
-  {/* READ MORE / LESS */}
-  {textBlocks.length > 0 && (
-    <button
-      onClick={() => setShowFullOverview(!showFullOverview)}
-      className="mt-3 text-blue-600 font-semibold text-sm"
-    >
-      {showFullOverview ? "Read Less" : "Read More"}
-    </button>
-  )}
-
-  {/* ================= NON-TEXT BLOCKS (ALWAYS VISIBLE) ================= */}
-  <div className="mt-6 space-y-6">
-
-    {nonTextBlocks.map((block, i) => {
-
-      /* ===== LIST ===== */
-      if (block.type === "list") {
-        return (
-          <ul key={i} className="list-disc pl-6 text-sm text-slate-700 space-y-1">
-            {block.items.map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ul>
-        );
-      }
-
-      /* ===== TABLE ===== */
-      if (block.type === "table") {
-        return (
-          <div key={i} className="overflow-x-auto border rounded-xl">
-            <table className="w-full border-collapse text-sm">
-              <thead className="bg-slate-100">
-                <tr>
-                  {block.columns.map((col, idx) => (
-                    <th
-                      key={idx}
-                      className="border p-3 text-left font-semibold"
-                    >
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {block.rows.map((row, rIdx) => (
-                  <tr key={rIdx} className="hover:bg-slate-50">
-                    {row.map((cell, cIdx) => (
-                      <td key={cIdx} className="border p-3">
-                        {cell}
-                      </td>
+                >
+                  <div className="space-y-4 text-sm text-slate-700 leading-relaxed">
+                    {textBlocks.map((block, i) => (
+                      <p key={i}>
+                        {block.content.replace(/collegedunia/gi, "Studycups")}
+                      </p>
                     ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
-      }
+                  </div>
 
-      return null;
-    })}
-  </div>
+                  {!showFullOverview && (
+                    <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" />
+                  )}
+                </div>
+              )}
 
-  {/* ================= BASIC INFO ================= */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 text-sm">
-    <InfoRow label="Established" value={college.established} />
-    <InfoRow label="Type" value={detail?.type || college.type || "N/A"} />
-    <InfoRow label="Location" value={college.location} />
-    <InfoRow
-      label="Rating"
-      value={`${college.rating}/5 (${college.reviewCount})`}
-    />
-  </div>
-</div>
+              {/* READ MORE / LESS */}
+              {textBlocks.length > 0 && (
+                <button
+                  onClick={() => setShowFullOverview(!showFullOverview)}
+                  className="mt-3 text-blue-600 font-semibold text-sm"
+                >
+                  {showFullOverview ? "Read Less" : "Read More"}
+                </button>
+              )}
+
+              {/* ================= NON-TEXT BLOCKS (ALWAYS VISIBLE) ================= */}
+              <div className="mt-6 space-y-6">
+
+                {nonTextBlocks.map((block, i) => {
+
+                  /* ===== LIST ===== */
+                  if (block.type === "list") {
+                    return (
+                      <ul key={i} className="list-disc pl-6 text-sm text-slate-700 space-y-1">
+                        {block.items.map((item, idx) => (
+                          <li key={idx}>{item}</li>
+                        ))}
+                      </ul>
+                    );
+                  }
+
+                  /* ===== TABLE ===== */
+                  if (block.type === "table") {
+                    return (
+                      <div key={i} className="overflow-x-auto border rounded-xl">
+                        <table className="w-full border-collapse text-sm">
+                          <thead className="bg-slate-100">
+                            <tr>
+                              {block.columns.map((col, idx) => (
+                                <th
+                                  key={idx}
+                                  className="border p-3 text-left font-semibold"
+                                >
+                                  {col}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {block.rows.map((row, rIdx) => (
+                              <tr key={rIdx} className="hover:bg-slate-50">
+                                {row.map((cell, cIdx) => (
+                                  <td key={cIdx} className="border p-3">
+                                    {cell}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  }
+
+                  return null;
+                })}
+              </div>
+
+              {/* ================= BASIC INFO ================= */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 text-sm">
+                <InfoRow label="Established" value={college.established} />
+                <InfoRow label="Type" value={detail?.type || college.type || "N/A"} />
+                <InfoRow label="Location" value={college.location} />
+                <InfoRow
+                  label="Rating"
+                  value={`${college.rating}/5 (${college.reviewCount})`}
+                />
+              </div>
+            </div>
 
 
 
 
             {/* ================= Ranking ================= */}
-            {detail?.rawScraped?.ranking_data?.length > 0 && (
+            {rankingDataArray.length > 0 && (
+
               <div className="bg-white border rounded-2xl p-6 mt-10 overflow-x-auto">
                 <h3 className="text-xl font-bold mb-4">Ranking Overview</h3>
 
                 {(() => {
-                  const { years, rows } = buildRankingTable(
-                    detail.rawScraped.ranking_data
-                  );
+                  const { years, table } = buildRankingTable(rankingDataArray);
+
+
+
 
                   return (
                     <table className="w-full border-collapse text-sm">
@@ -1788,22 +1852,36 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
                         </tr>
                       </thead>
 
-                    <tbody>
-  {Object.keys(rows).map(stream => (
-    <tr key={stream}>
-      <td className="border p-2 font-semibold">
-        {stream}
-      </td>
+                      <tbody>
+                        {Object.keys(table).map(stream => (
+                          <tr key={stream}>
+                            <td className="border p-2 font-semibold">
+                              {stream}
+                            </td>
 
-      {years.map(year => (
-        <td key={year} className="border p-2 align-top">
-  {renderRankingCell(rows[stream][year])}
-</td>
+                            {years.map(year => (
+                              <td key={year} className="border p-2 align-top">
+                                {table[stream][year] ? (
+                                  <>
+                                    <div className="font-semibold text-slate-800">
+                                      {table[stream][year].main}
+                                    </div>
 
-      ))}
-    </tr>
-  ))}
-</tbody>
+                                    {table[stream][year].state && (
+                                      <div className="text-xs text-slate-500 mt-1">
+                                        {table[stream][year].state}
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+
 
                     </table>
                   );
@@ -1848,7 +1926,7 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
               </div>
 
               <button
-                onClick={() => onCompareToggle(college.id)}
+                onClick={() => college && onCompareToggle(college.id)}
                 className={`w-full py-2.5 rounded-xl font-semibold ${isCompared
                   ? "bg-green-100 text-green-700"
                   : "bg-slate-100"
@@ -2026,8 +2104,15 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
             <div className="bg-white border border-slate-200 rounded-2xl p-6">
               <h3 className="font-bold mb-3">Fee Structure</h3>
               <p className="text-lg font-bold text-green-700">
-                ₹{college.feesRange.min.toLocaleString("en-IN")} – ₹
-                {college.feesRange.max.toLocaleString("en-IN")}
+                {college?.feesRange ? (
+                  <>
+                    ₹{college.feesRange.min.toLocaleString("en-IN")} – ₹
+                    {college.feesRange.max.toLocaleString("en-IN")}
+                  </>
+                ) : (
+                  "N/A"
+                )}
+
               </p>
               <p className="text-xs text-slate-500 mt-1">Per year</p>
             </div>
@@ -2098,19 +2183,17 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
               {/* =============== Category Ratings =============== */}
               <div className="mt-6 grid grid-cols-3 md:grid-cols-6 gap-4">
 
-                {detail?.rawScraped?.rating_categories?.slice(0, 6).map((item, i) => (
+                {Array.isArray(detail?.rawScraped?.rating_categories) &&
+                  detail.rawScraped.rating_categories.slice(0, 6).map((item: any, i: number) => (
+                    <div key={i} className="flex flex-col items-center p-2 text-center">
+                      <p className="text-[12px] text-slate-500">{item.label}</p>
+                      <p className="text-sm font-bold text-slate-900 mt-1">
+                        {item.rating}★
+                      </p>
+                    </div>
+                  ))}
 
-                  <div
-                    key={i}
-                    className="flex flex-col items-center p-2 text-center"
-                  >
-                    <p className="text-[12px] text-slate-500">{item.label}</p>
-                    <p className="text-sm font-bold text-slate-900 mt-1">
-                      {item.rating}★
-                    </p>
-                  </div>
 
-                ))}
 
               </div>
 
@@ -2539,6 +2622,17 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
         );
     }
   };
+  // ✅ SAFE RENDER GUARD — AFTER ALL HOOKS
+  if (!college) {
+    return (
+      <div className="mt-[120px] text-center text-slate-500">
+        Loading college details...
+      </div>
+    );
+  } 
+
+  
+
 
   /* ===================== PAGE JSX RETURN ===================== */
   const placementRateValue = (() => {
@@ -2568,9 +2662,9 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
       <div className="relative mt-[90px] w-full max-w-7xl mx-auto px-3 sm:px-4">
 
         <div className="relative h-[250px] sm:h-[260px] w-full overflow-hidden rounded-[20px]">
-<button
-  onClick={() => navigate(-1)}
-  className="
+          <button
+            onClick={() => navigate(-1)}
+            className="
     absolute
     top-4
     left-4
@@ -2586,16 +2680,16 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
     backdrop-blur
     transition
   "
-  aria-label="Back"
->
-  {/* Arrow – always visible */}
-  <span className="text-lg leading-none">←</span>
+            aria-label="Back"
+          >
+            {/* Arrow – always visible */}
+            <span className="text-lg leading-none">←</span>
 
-  {/* Text – desktop only */}
-  <span className="hidden md:inline text-sm font-semibold">
-    Back to Colleges
-  </span>
-</button>
+            {/* Text – desktop only */}
+            <span className="hidden md:inline text-sm font-semibold">
+              Back to Colleges
+            </span>
+          </button>
 
 
           <img
@@ -2687,7 +2781,7 @@ const nonTextBlocks = descriptionBlocks.filter(b => b.type !== "text");
                 </button>
 
                 <button
-                   onClick={onOpenBrochure}
+                  onClick={onOpenBrochure}
                   className="
       px-3 py-1.5 md:px-6 md:py-2.5
       rounded-lg
