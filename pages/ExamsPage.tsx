@@ -11,18 +11,16 @@ const AnimatedCard: React.FC<{ children: React.ReactNode; delay: number }> = ({
   children,
   delay,
 }) => {
-  const [ref, isVisible] = useOnScreen<HTMLDivElement>({ threshold: 0.1 });
-
   return (
     <div
-      ref={ref}
-      className={`opacity-0 ${isVisible ? "animate-fadeInUp" : ""}`}
+      className="animate-fadeInUp"
       style={{ animationDelay: `${delay}ms` }}
     >
       {children}
     </div>
   );
 };
+
 
 const ExamsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -144,9 +142,6 @@ const visibleNews = showAllNews
 }, [exams]);
 
 
-  if (loading) {
-    return <p className="text-center p-10">Loading Exams...</p>;
-  }
 
   return (
     <div className="bg-[#f2f4f7] pt-24 pb-16">
@@ -186,90 +181,98 @@ const visibleNews = showAllNews
             {/* CATEGORIES */}
        
            
-     {/* EXAMS LIST */}
+ {/* EXAMS LIST */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  {filteredExams.map((exam, index) => (
-    <AnimatedCard key={exam.id} delay={index * 60}>
+
+  {/* 🔹 LOADING STATE (SKELETON) */}
+  {loading &&
+    [...Array(6)].map((_, i) => (
       <div
-        onClick={() => navigate(`/exam/${exam.id}`)}
-
-        className="
-          bg-white border rounded-xl p-5
-          hover:shadow-lg transition cursor-pointer
-        "
+        key={i}
+        className="bg-white border rounded-xl p-5 animate-pulse"
       >
-        {/* TOP */}
-        <div className="flex items-start gap-4">
-          <img
-            src={exam.logoUrl || "/icons/exam-default.png"}
-            alt={exam.name}
-            className="h-12 w-12 object-contain"
-          />
-
-          <div className="flex-1">
-            <h4 className="font-semibold text-slate-900 text-[14px] md:text-[15px]
- leading-snug">
-              {exam.name}
-            </h4>
-
-            <p className="text-xs text-slate-600 mt-0.5">
-              {exam.highlights?.conducting_body || "—"}
-            </p>
+        <div className="flex gap-4">
+          <div className="h-12 w-12 bg-slate-200 rounded" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 bg-slate-200 rounded w-3/4" />
+            <div className="h-2 bg-slate-200 rounded w-1/2" />
           </div>
-
-          <span
-            className="
-              text-[11px] px-2 py-1 rounded-full
-              bg-blue-50 text-blue-700 font-medium
-            "
-          >
-            {exam.stream || "General"}
-          </span>
         </div>
 
-        {/* META */}
-        <div className="mt-4 grid grid-cols-2 gap-y-2 text-xs md:text-sm
- text-slate-600">
-          <span>Exam Level</span>
-          <span className="text-right font-medium">
-            {exam.highlights?.exam_level || "—"}
-          </span>
-
-          <span>Mode</span>
-          <span className="text-right font-medium">
-            {exam.highlights?.mode_of_exam || "—"}
-          </span>
-
-          <span>Exam Date</span>
-          <span className="text-right font-medium">
-            {getExamDate(exam)}
-          </span>
-
-          <span>Duration</span>
-          <span className="text-right font-medium">
-            {exam.highlights?.exam_duration || "—"}
-          </span>
-        </div>
-
-        {/* FOOTER */}
-        <div className="mt-4 pt-3 border-t flex justify-between items-center">
-          <span className="text-xs font-semibold text-blue-700">
-            View Exam Details →
-          </span>
-
-          <span
-            className="
-              px-3 py-1.5 text-xs
-              bg-green-500 text-white rounded-full font-semibold
-            "
-          >
-            Apply
-          </span>
+        <div className="mt-4 space-y-2">
+          <div className="h-2 bg-slate-200 rounded" />
+          <div className="h-2 bg-slate-200 rounded" />
         </div>
       </div>
-    </AnimatedCard>
-  ))}
+    ))}
+
+  {/* 🔹 REAL DATA */}
+  {!loading &&
+    filteredExams.map((exam, index) => (
+      <AnimatedCard key={exam.id} delay={index * 40}>
+        <div
+          onClick={() => navigate(`/exam/${exam.id}`)}
+          className="bg-white border rounded-xl p-5 hover:shadow-lg transition cursor-pointer"
+        >
+          {/* TOP */}
+          <div className="flex items-start gap-4">
+            <img
+              src={exam.logoUrl || "/icons/exam-default.png"}
+              alt={exam.name}
+              className="h-12 w-12 object-contain"
+            />
+
+            <div className="flex-1">
+              <h4 className="font-semibold text-slate-900 text-[14px] md:text-[15px] leading-snug">
+                {exam.name}
+              </h4>
+              <p className="text-xs text-slate-600 mt-0.5">
+                {exam.highlights?.conducting_body || "—"}
+              </p>
+            </div>
+
+            <span className="text-[11px] px-2 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">
+              {exam.stream || "General"}
+            </span>
+          </div>
+
+          {/* META */}
+          <div className="mt-4 grid grid-cols-2 gap-y-2 text-xs md:text-sm text-slate-600">
+            <span>Exam Level</span>
+            <span className="text-right font-medium">
+              {exam.highlights?.exam_level || "—"}
+            </span>
+
+            <span>Mode</span>
+            <span className="text-right font-medium">
+              {exam.highlights?.mode_of_exam || "—"}
+            </span>
+
+            <span>Exam Date</span>
+            <span className="text-right font-medium">
+              {getExamDate(exam)}
+            </span>
+
+            <span>Duration</span>
+            <span className="text-right font-medium">
+              {exam.highlights?.exam_duration || "—"}
+            </span>
+          </div>
+
+          {/* FOOTER */}
+          <div className="mt-4 pt-3 border-t flex justify-between items-center">
+            <span className="text-xs font-semibold text-blue-700">
+              View Exam Details →
+            </span>
+            <span className="px-3 py-1.5 text-xs bg-green-500 text-white rounded-full font-semibold">
+              Apply
+            </span>
+          </div>
+        </div>
+      </AnimatedCard>
+    ))}
 </div>
+
 
 
           </div>
