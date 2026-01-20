@@ -548,10 +548,10 @@ col.rawScraped.courses.forEach((cr) => {
 >
   {/* TAGS */}
   <div className="flex justify-between mb-4">
-    <span className="px-3 py-1 text-xs bg-slate-100 rounded-full font-semibold">
+    <span className="px-3 py-1 text-xs bg-slate-100 rounded-full font-semibold truncate">
       {course.level || "N/A"}
     </span>
-    <span className="px-3 py-1 text-xs bg-slate-100 rounded-full font-semibold">
+    <span className="px-3 py-1 text-xs bg-slate-100 rounded-full font-semibold truncate">
       {course.duration || "N/A"}
     </span>
   </div>
@@ -579,7 +579,7 @@ col.rawScraped.courses.forEach((cr) => {
     </div>
 
     <div className="border border-slate-300 rounded-lg p-3">
-      <p className="text-xs text-slate-500">Avg. Fees</p>
+      <p className="text-xs text-slate-500">Avg.Fees</p>
       <p className="font-semibold truncate">
     {course.fees}
 

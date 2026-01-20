@@ -354,7 +354,10 @@ const DetailPage: React.FC<DetailPageProps> = ({
   const [showAllLikes, setShowAllLikes] = useState(false);
   const [showAllDislikes, setShowAllDislikes] = useState(false);
   const [showAllStudentLikes, setShowAllStudentLikes] = useState(false);
-  const [showAllStudentDislikes, setShowAllStudentDislikes] = useState(false);
+  const [showAllStudentDislikes, setShowAllStudentDislikes] = useState(false); 
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+const [activeImage, setActiveImage] = useState<string | null>(null);
+
 
 
   const { slugId } = useParams<{ slugId: string }>();
@@ -429,6 +432,15 @@ const DetailPage: React.FC<DetailPageProps> = ({
 
 
 
+const openLightbox = (img: string) => {
+  setActiveImage(img);
+  setLightboxOpen(true);
+};
+
+const closeLightbox = () => {
+  setLightboxOpen(false);
+  setActiveImage(null);
+};
 
 
 
@@ -1653,35 +1665,83 @@ const DetailPage: React.FC<DetailPageProps> = ({
         );
 
       case "Gallery":
-        const images =
-          detail?.gallery?.length ? detail.gallery : getCollegeImages(slug);
+  const images =
+    detail?.gallery?.length ? detail.gallery : getCollegeImages(slug);
 
-        return (
-          <div
+  return (
+    <>
+      <div
+        className="
+          columns-2
+          md:columns-3
+          gap-4
+          space-y-4
+          pb-4
+        "
+      >
+        {images.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            onClick={() => openLightbox(src)}
             className="
-    columns-2
-    md:columns-3
-    gap-4
-    space-y-4
-    pb-4
-  "
-          >
-            {images.map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                className="
-        w-full
-        rounded-xl 
-        object-cover 
-        border 
-        break-inside-avoid
-      "
-              />
-            ))}
-          </div>
+              w-full
+              rounded-xl
+              object-cover
+              border
+              break-inside-avoid
+              cursor-pointer
+              hover:opacity-90
+              transition
+            "
+          />
+        ))}
+      </div>
 
-        );
+      {/* ===== LIGHTBOX POPUP ===== */}
+      {lightboxOpen && activeImage && (
+        <div
+          onClick={closeLightbox}
+          className="
+            fixed inset-0 z-[9999]
+            bg-black/80
+            flex items-center justify-center
+            p-4
+          "
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-5xl w-full"
+          >
+            {/* Close Button */}
+            <button
+              onClick={closeLightbox}
+              className="
+                absolute -top-10 right-0
+                text-white text-3xl
+                font-bold
+              "
+            >
+              ×
+            </button>
+
+            {/* Image */}
+            <img
+              src={activeImage}
+              className="
+                w-full
+                max-h-[85vh]
+                object-contain
+                rounded-xl
+                shadow-2xl
+                bg-black
+              "
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
 
       default:
         const feeInfo = detail?.rawScraped?.info_course_fee;
