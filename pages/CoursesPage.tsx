@@ -50,10 +50,19 @@ const CoursesPage: React.FC<CoursesPageProps> = ({
   const [searchTerm, setSearchTerm] = useState(""); 
   const [selectedStream, setSelectedStream] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false); 
+  const [page, setPage] = useState(1);
+
 
 
 const location = useLocation();
+const COURSES_PER_PAGE = 12; 
+
+useEffect(() => {
+  setPage(1);
+}, [searchTerm, selectedStream, selectedLevel]);
+
+
 
 useEffect(() => {
   if (location.state && typeof location.state === "object") {
@@ -248,7 +257,16 @@ col.rawScraped.courses.forEach((cr) => {
 
       return searchMatch && streamMatch && levelMatch;
     });
-  }, [groupedCourses, searchTerm, selectedStream, selectedLevel]);
+  }, [groupedCourses, searchTerm, selectedStream, selectedLevel]); 
+
+  const totalPages = Math.ceil(filteredCourses.length / COURSES_PER_PAGE);
+
+const pagedCourses = useMemo(() => {
+  const start = (page - 1) * COURSES_PER_PAGE;
+  const end = start + COURSES_PER_PAGE;
+  return filteredCourses.slice(start, end);
+}, [filteredCourses, page]);
+
 
   const clearFilters = () => {
     setSelectedStream("All");
@@ -364,106 +382,103 @@ col.rawScraped.courses.forEach((cr) => {
        <div className="flex gap-8 items-start">
         {/* FILTERS */}
        {/* LEFT FILTER SIDEBAR (Desktop) */}
-<aside className="hidden md:block w-[260px] sticky top-28 h-[calc(100vh-7rem)]">
-  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm h-full flex flex-col">
+<aside className="hidden md:block w-[280px] sticky top-28">
+  <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
 
     {/* HEADER (Sticky inside sidebar) */}
-    <div className="px-5 py-4 border-b bg-slate-50 shrink-0">
-      <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">
-        Filters
-      </h3>
-    </div>
+  <div className="px-6 py-4 border-b bg-slate-50">
+  <h3 className="text-sm font-extrabold tracking-wide text-slate-800">
+    FILTERS
+  </h3>
+  <p className="text-xs text-slate-500 mt-1">
+    Narrow down courses
+  </p>
+</div>
+
 
     {/* SCROLLABLE FILTER CONTENT */}
-    <div className="p-5 space-y-6 overflow-y-auto">
+   <div className="px-6 py-5 space-y-8 max-h-[calc(100vh-220px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300">
+
 
       {/* STREAM */}
-      <div>
-        <h4 className="text-xs font-semibold text-slate-500 uppercase mb-3">
-          Stream
-        </h4>
+    <div>
+  <h4 className="text-xs font-bold uppercase tracking-wide text-slate-600 mb-4">
+    Stream
+  </h4>
 
-        <div className="space-y-2">
-          {streams.map((stream) => (
-            <label
-              key={stream}
-              className={`
-                flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
-                border transition
-                ${
-                  selectedStream === stream
-                    ? "bg-blue-50 border-blue-500"
-                    : "border-slate-200 hover:bg-slate-50"
-                }
-              `}
-            >
-              <input
-                type="radio"
-                name="stream"
-                checked={selectedStream === stream}
-                onChange={() => setSelectedStream(stream)}
-                className="accent-blue-600"
-              />
-              <span className="text-sm font-medium text-slate-800">
-                {stream}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
+  <div className="space-y-2">
+    {streams.map(stream => (
+      <button
+        key={stream}
+        onClick={() => setSelectedStream(stream)}
+        className={`
+          w-full flex items-center justify-between
+          px-4 py-2.5 rounded-xl border text-sm font-medium
+          transition-all
+          ${
+            selectedStream === stream
+              ? "bg-[#0A225A] text-white border-[#0A225A] shadow"
+              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+          }
+        `}
+      >
+        {stream}
+        {selectedStream === stream && <span>✓</span>}
+      </button>
+    ))}
+  </div>
+</div>
+
 
       {/* DIVIDER */}
-      <div className="h-px bg-slate-200" />
+    <div className="h-px bg-slate-200" />
+
 
       {/* LEVEL */}
-      <div>
-        <h4 className="text-xs font-semibold text-slate-500 uppercase mb-3">
-          Level
-        </h4>
+   <div>
+  <h4 className="text-xs font-bold uppercase tracking-wide text-slate-600 mb-4">
+    Level
+  </h4>
 
-        <div className="space-y-2">
-          {levels.map((level) => (
-            <label
-              key={level}
-              className={`
-                flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
-                border transition
-                ${
-                  selectedLevel === level
-                    ? "bg-blue-50 border-blue-500"
-                    : "border-slate-200 hover:bg-slate-50"
-                }
-              `}
-            >
-              <input
-                type="radio"
-                name="level"
-                checked={selectedLevel === level}
-                onChange={() => setSelectedLevel(level)}
-                className="accent-blue-600"
-              />
-              <span className="text-sm font-medium text-slate-800">
-                {level}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
+  <div className="space-y-2">
+    {levels.map(level => (
+      <button
+        key={level}
+        onClick={() => setSelectedLevel(level)}
+        className={`
+          w-full flex items-center justify-between
+          px-4 py-2.5 rounded-xl border text-sm font-medium
+          transition-all
+          ${
+            selectedLevel === level
+              ? "bg-[#0A225A] text-white border-[#0A225A] shadow"
+              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+          }
+        `}
+      >
+        {level}
+        {selectedLevel === level && <span>✓</span>}
+      </button>
+    ))}
+  </div>
+</div>
+
 
       {/* CLEAR */}
-      {(selectedStream !== "All" || selectedLevel !== "All") && (
-        <button
-          onClick={clearFilters}
-          className="
-            w-full mt-4 py-2 rounded-lg
-            text-sm font-semibold
-            text-red-600 border border-red-200
-            hover:bg-red-50 transition
-          "
-        >
-          Clear Filters
-        </button>
-      )}
+     {(selectedStream !== "All" || selectedLevel !== "All") && (
+  <button
+    onClick={clearFilters}
+    className="
+      w-full mt-6 py-2.5 rounded-xl
+      text-sm font-semibold
+      text-red-600 border border-red-200
+      hover:bg-red-50 transition
+    "
+  >
+    Reset Filters
+  </button>
+)}
+
     </div>
   </div>
 </aside>
@@ -473,7 +488,8 @@ col.rawScraped.courses.forEach((cr) => {
 
         {/* COURSES GRID */}
      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
-  {filteredCourses.map((course) => (
+ {pagedCourses.map((course) => (
+
     <React.Fragment key={course.courseKey}>
 <div
   onClick={() =>
@@ -624,13 +640,76 @@ col.rawScraped.courses.forEach((cr) => {
 
 
            </div>     </React.Fragment>
-  ))}
+  ))} 
+  {/* PAGINATION CONTROLS */}
+
 
 </div>
 
 
 </div>
-        
+         {/* PAGINATION */}
+{totalPages > 1 && (
+  <div className="mt-14 flex justify-center">
+    <div
+      className="
+        flex items-center gap-3
+        bg-white
+        border border-slate-200
+        rounded-xl
+        shadow-sm
+        px-4 py-3
+      "
+    >
+      {/* PREVIOUS */}
+      <button
+        disabled={page === 1}
+        onClick={() => setPage(p => Math.max(1, p - 1))}
+        className={`
+          flex items-center gap-1 px-4 py-2 rounded-lg
+          text-sm font-semibold transition
+          ${
+            page === 1
+              ? "text-slate-400 bg-slate-100 cursor-not-allowed"
+              : "text-[#0A225A] hover:bg-blue-50"
+          }
+        `}
+      >
+        ← <span>Previous</span>
+      </button>
+
+      {/* PAGE INDICATOR */}
+      <div
+        className="
+          px-4 py-2 rounded-lg
+          bg-slate-100
+          text-sm font-bold text-slate-700
+          min-w-[90px] text-center
+        "
+      >
+        Page {page} <span className="text-slate-400">of</span> {totalPages}
+      </div>
+
+      {/* NEXT */}
+      <button
+        disabled={page === totalPages}
+        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+        className={`
+          flex items-center gap-1 px-4 py-2 rounded-lg
+          text-sm font-semibold transition
+          ${
+            page === totalPages
+              ? "text-slate-400 bg-slate-100 cursor-not-allowed"
+              : "text-[#0A225A] hover:bg-blue-50"
+          }
+        `}
+      >
+        <span>Next</span> →
+      </button>
+    </div>
+  </div>
+)}
+
 
         
       </div> 

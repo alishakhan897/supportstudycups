@@ -7,16 +7,14 @@ import { useLocation } from "react-router-dom";
 
 
 /* ================= TYPES ================= */
-
 type Filters = {
   college: string;
   city: string;
   course: string;
   stream: string;
   collegeType: string;
-
   minRating: number;
-  region?: string; 
+  region?: string;
 };
 
 interface ListingPageProps {
@@ -24,11 +22,9 @@ interface ListingPageProps {
   compareList: number[];
   onCompareToggle: (id: number) => void;
   onOpenApplyNow: () => void;
-  onOpenBrochure: () => void;   // ✅ ADD THIS
-  onOpenAIAssistant: () => void;
+  onOpenBrochure: () => void;
   initialFilters?: { college?: string; city?: string; course?: string };
 }
-
 
 interface FilterSidebarProps {
   filters: Filters;
@@ -36,40 +32,161 @@ interface FilterSidebarProps {
   onClearFilters: () => void;
   forceShow?: boolean;
   colleges: College[];
-
 }
 
-/* ================= FILTER SIDEBAR (UNCHANGED) ================= */
+/* ================= UTILS ================= */
+
+const normalize = (s?: string) =>
+  typeof s === "string"
+    ? s.toLowerCase().replace(/\s+/g, "").replace(/[,.]/g, "")
+    : "";
+
+/* ================= ACCORDION ================= */
+
+const FilterAccordion: React.FC<{
+  title: string;
+  children: React.ReactNode;
+  maxHeight?: string;
+}> = ({ title, children, maxHeight = "240px" }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="border-b pb-3">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex justify-between items-center text-sm font-semibold text-slate-800"
+      >
+        {title}
+        <span className={`transition-transform ${open ? "rotate-180" : ""}`}>
+          ▼
+        </span>
+      </button>
+
+      {open && (
+        <div
+          className="
+            mt-3 space-y-2
+            overflow-y-auto
+            pr-2
+            scrollbar-thin
+            scrollbar-thumb-slate-300
+            scrollbar-track-transparent
+          "
+          style={{ maxHeight }}
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const INDIAN_STATES = new Set([
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Jammu and Kashmir",
+  "Chandigarh",
+  "Puducherry",
+  "Ladakh"
+]);
+
+
+/* ================= FILTER SIDEBAR ================= */
 
 const FilterSidebar: React.FC<FilterSidebarProps> = ({
   filters,
   setFilters,
   onClearFilters,
   forceShow = false,
-  colleges, 
-  region: undefined,
-}) => {  
-  
-  const streams = useMemo(() => {
-  const set = new Set<string>();
+  colleges,
+}) => {
+  const { streams, states, cities, collegeTypes } = useMemo(() => {
+  const streamSet = new Set<string>();
+  const typeSet = new Set<string>();
 
-  colleges.forEach((c) => {
-    const s = c.stream;
+  // 📊 location intelligence
+  const locationStats = new Map<
+    string,
+    { first: number; second: number }
+  >();
 
-    if (Array.isArray(s)) s.forEach(v => set.add(v));
-    else if (typeof s === "string") set.add(s);
+  colleges.forEach(c => {
+    // STREAM
+    if (Array.isArray(c.stream)) c.stream.forEach(s => streamSet.add(s));
+    else if (typeof c.stream === "string") streamSet.add(c.stream);
+
+    // COLLEGE TYPE
+    if (c.type) typeSet.add(c.type.trim());
+
+    // LOCATION ANALYSIS
+    if (typeof c.location === "string") {
+      const parts = c.location.split(",").map(p => p.trim());
+
+      parts.forEach((part, index) => {
+        if (!locationStats.has(part)) {
+          locationStats.set(part, { first: 0, second: 0 });
+        }
+        const stat = locationStats.get(part)!;
+        if (index === 0) stat.first++;
+        if (index === 1) stat.second++;
+      });
+    }
   });
 
-  return Array.from(set);
+  // CLASSIFICATION
+  const stateSet = new Set<string>();
+  const citySet = new Set<string>();
+
+locationStats.forEach((stat, name) => {
+  const normalized = name.trim();
+
+  // ✅ If known state → ALWAYS state
+  if (INDIAN_STATES.has(normalized)) {
+    stateSet.add(normalized);
+    return;
+  }
+
+  // ❌ Everything else → City
+  citySet.add(normalized);
+});
+
+
+
+  return {
+    streams: Array.from(streamSet).sort(),
+    states: Array.from(stateSet).sort(),
+    cities: Array.from(citySet).sort(),
+    collegeTypes: ["All", ...Array.from(typeSet)],
+  };
 }, [colleges]);
 
-  const collegeTypes = useMemo(() => {
-  const set = new Set<string>();
-  colleges.forEach((c) => {
-    if (c.type) set.add(c.type.trim());
-  });
-  return ["All", ...Array.from(set)];
-}, [colleges]);
 
   const ratings = [
     { label: "Any", value: 0 },
@@ -80,158 +197,99 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
   return (
     <aside
-      className={`
-        ${forceShow ? "block" : "hidden lg:block"}
-        lg:w-1/4 xl:w-1/5
-        lg:sticky lg:top-28
-      `}
+      className={`${forceShow ? "block" : "hidden lg:block"} lg:w-1/4 xl:w-1/5 lg:sticky lg:top-28`}
     >
-      <div className="bg-white rounded-2xl border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
 
         {/* HEADER */}
-        <div className="flex items-center justify-between px-5 py-4 border-b bg-slate-50">
-          <h3 className="text-base font-bold text-slate-800">Filters</h3>
-          <button
-            onClick={onClearFilters}
-            className="text-sm font-semibold text-[blue] hover:underline"
-          >
+        <div className="flex justify-between px-5 py-4 border-b bg-slate-50">
+          <h3 className="font-bold">Filters</h3>
+          <button onClick={onClearFilters} className="text-blue-600 text-sm">
             Clear All
           </button>
         </div>
 
-        <div className="p-5 space-y-6 border-t border-slate-200">
+        <div className="p-5 space-y-5">
 
-          {/* BASIC SEARCH */}
-          <div className="space-y-3">
-            <input
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[--primary-medium] focus:border-[--primary-medium]"
-              placeholder="College name"
-              value={filters.college}
-              onChange={(e) =>
-                setFilters((p) => ({ ...p, college: e.target.value }))
-              }
-            />
-            <input
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[--primary-medium]"
-              placeholder="City"
-              value={filters.city}
-              onChange={(e) =>
-                setFilters((p) => ({ ...p, city: e.target.value }))
-              }
-            />
-            <input
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-[--primary-medium]"
-              placeholder="Course"
-              value={filters.course}
-              onChange={(e) =>
-                setFilters((p) => ({ ...p, course: e.target.value }))
-              }
-            />
-          </div>
+          {/* STREAM */}
+          <FilterAccordion title="Stream">
+            <div className="flex flex-wrap gap-2">
+              {["All", ...streams].map(s => (
+                <button
+                  key={s}
+                  onClick={() => setFilters(p => ({ ...p, stream: s }))}
+                  className={`px-3 py-1.5 text-xs rounded-full border ${filters.stream === s
+                      ? "bg-[var(--primary-medium)] text-white"
+                      : "bg-white text-slate-700"
+                    }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </FilterAccordion>
 
-       {/* STREAM */}
-<div>
-  <h4 className="text-sm font-semibold text-slate-700 mb-3">
-    Stream
-  </h4>
+          {/* STATE */}
+          <FilterAccordion title="State">
+            {states.map(s => (
+              <label key={s} className="flex gap-2 text-sm">
+                <input
+                  type="radio"
+                  checked={filters.region === s}
+                  onChange={() => setFilters(p => ({ ...p, region: s }))}
+                />
+                {s}
+              </label>
+            ))}
+          </FilterAccordion>
 
-  <div
-    className="
-      flex flex-wrap gap-2
-      max-h-[72px]     /* 👈 approx 2 rows */
-      overflow-y-auto
-      pr-2
-    "
-  >
-    {["All", ...streams].map((s) => (
-      <button
-        key={s}
-        onClick={() => setFilters((p) => ({ ...p, stream: s }))}
-        className={`
-          px-2 py-1.5 text-xs font-medium rounded-full border
-          whitespace-nowrap
-          ${filters.stream === s
-            ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)]"
-            : "bg-white text-slate-700 hover:bg-slate-100 border-slate-300"
-          }
-        `}
-      >
-        {s}
-      </button>
-    ))}
-  </div>
-</div>
+          {/* CITY */}
+          <FilterAccordion title="City">
+            {cities.map(c => (
+              <label key={c} className="flex gap-2 text-sm">
+                <input
+                  type="radio"
+                  checked={filters.city === c}
+                  onChange={() => setFilters(p => ({ ...p, city: c }))}
+                />
+                {c}
+              </label>
+            ))}
+          </FilterAccordion>
 
-        
-     {/* COLLEGE TYPE */}
-<div>
-  <h4 className="text-sm font-semibold text-slate-800 mb-3">
-    College Type
-  </h4>
-
-  <div
-    className="
-      grid grid-cols-2 gap-3 md:gap-2
-      max-h-[96px]          /* 2 rows only */
-      overflow-y-auto
-      pr-1
-      scrollbar-thin
-    "
-  >
-    {collegeTypes.map((t) => (
-      <button
-        key={t}
-        onClick={() =>
-          setFilters((p) => ({ ...p, collegeType: t }))
-        }
-        className={`
-          h-[54px] w-full
-          flex items-center justify-center text-center
-          text-[11px] leading-tight font-semibold
-          rounded-xl border transition-all
-          ${filters.collegeType === t
-            ? "bg-[var(--primary-medium)] text-white border-[var(--primary-medium)] shadow-sm"
-            : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
-          }
-        `}
-      >
-        <span className=" px-2
-    text-center
-    leading-tight
-    [font-size:clamp(9px,2.5vw,11px)]">
-          {t}
-        </span>
-      </button>
-    ))}
-  </div>
-</div>
-
+          {/* COLLEGE TYPE */}
+          <FilterAccordion title="College Type">
+            {collegeTypes.map(t => (
+              <button
+                key={t}
+                onClick={() => setFilters(p => ({ ...p, collegeType: t }))}
+                className={`w-full text-xs px-3 py-2 rounded border ${filters.collegeType === t
+                    ? "bg-[var(--primary-medium)] text-white"
+                    : "bg-white"
+                  }`}
+              >
+                {t}
+              </button>
+            ))}
+          </FilterAccordion>
 
           {/* RATING */}
-          <div>
-            <h4 className="text-sm font-semibold text-slate-700 mb-3">
-              Minimum Rating
-            </h4>
+          <FilterAccordion title="Rating">
             <div className="flex flex-wrap gap-2">
-              {ratings.map((r) => (
+              {ratings.map(r => (
                 <button
                   key={r.value}
-                  onClick={() =>
-                    setFilters((p) => ({ ...p, minRating: r.value }))
-                  }
-                  className={`
-                    px-3 py-1.5 text-xs font-medium rounded-full border
-                    ${filters.minRating === r.value
-                      ? "bg-amber-400 text-black border-amber-400"
-                      : "bg-white text-slate-700 hover:bg-slate-20"
-                    }
-                  `}
+                  onClick={() => setFilters(p => ({ ...p, minRating: r.value }))}
+                  className={`px-3 py-1.5 text-xs rounded-full border ${filters.minRating === r.value
+                      ? "bg-amber-400 text-black"
+                      : "bg-white"
+                    }`}
                 >
                   {r.label}
                 </button>
               ))}
             </div>
-          </div>
+          </FilterAccordion>
 
         </div>
       </div>
@@ -239,11 +297,10 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   );
 };
 
-
 /* ================= MAIN PAGE ================= */
 
 const ListingPage: React.FC<ListingPageProps> = ({
-  
+
   colleges,
   compareList,
   onCompareToggle,
@@ -258,108 +315,101 @@ const ListingPage: React.FC<ListingPageProps> = ({
     stream: "All",
     collegeType: "All",
     minRating: 0,
-  }); 
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [showMobileFilters, setShowMobileFilters] = useState(false); 
-  
-
-useEffect(() => {
-  if (initialFilters) {
-    setFilters(p => ({ ...p, ...initialFilters }));
-  }
-
-  if (location.state && typeof location.state === "object") {
-    const navState = location.state as any;
-
-    setFilters(p => ({
-      ...p,
-      ...navState,      // college, city, course
-      region: navState.region ?? undefined, // ✅ REGION SAFE
-    }));
-  }
-}, [initialFilters, location.state]);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
 
-
- const normalize = (s?: string) =>
-  typeof s === "string"
-    ? s.toLowerCase().replace(/\s+/g, "")
-    : "";
-
-
-
-const filteredColleges = useMemo(() => {
-  return colleges.filter((c) => {
-
-    // 1️⃣ College name
-    if (
-      filters.college &&
-      !c.name?.toLowerCase().includes(filters.college.toLowerCase())
-    ) return false;
-
-    // 2️⃣ City
-    if (filters.city) {
-  const loc = normalize(c.location);
-  if (!loc.includes(normalize(filters.city))) return false;
-}
-
-
-    // 3️⃣ Course (SAFE)
-    if (filters.course) {
-      const courses = c.rawScraped?.courses;
-      if (!Array.isArray(courses)) return true; // allow if missing
-      const hasCourse = courses.some(co =>
-        co.name?.toLowerCase().includes(filters.course.toLowerCase())
-      );
-      if (!hasCourse) return false;
+  useEffect(() => {
+    if (initialFilters) {
+      setFilters(p => ({ ...p, ...initialFilters }));
     }
 
-    // 4️⃣ Stream (SAFE + normalized)
-   if (filters.stream !== "All") {
-  const s = c.stream;
+    if (location.state && typeof location.state === "object") {
+      const navState = location.state as any;
 
-  // agar stream missing hai to allow karo
-  if (!s) return true;
-
-  const normalizeStream = (v: string) =>
-    v.toLowerCase().replace(/\s+/g, "").replace(/[/.]/g, "");
-
-  const match = Array.isArray(s)
-    ? s.some(v =>
-        normalizeStream(v).includes(normalizeStream(filters.stream))
-      )
-    : normalizeStream(s).includes(normalizeStream(filters.stream));
-
-  if (!match) return false;
-}
+      setFilters(p => ({
+        ...p,
+        ...navState,      // college, city, course
+        region: navState.region ?? undefined, // ✅ REGION SAFE
+      }));
+    }
+  }, [initialFilters, location.state]);
 
 
-    // 5️⃣ College type (SAFE)
-    if (
-      filters.collegeType !== "All" &&
-      c.type &&
-      c.type !== filters.collegeType
-    ) return false;
 
-    // 6️⃣ Rating (SAFE)
-    if (filters.minRating > 0) {
-      const rating = Number(c.rating);
-      if (!rating || rating < filters.minRating) return false;
-    } 
-    // 🔹 REGION FILTER (HOME PAGE CARDS)
-if (filters.region) {
-  const location = c.location?.toLowerCase() || "";
-  if (!location.includes(filters.region.toLowerCase())) {
-    return false;
-  }
-}
+  const filteredColleges = useMemo(() => {
+    return colleges.filter((c) => {
+
+      // 1️⃣ College name
+      if (
+        filters.college &&
+        !c.name?.toLowerCase().includes(filters.college.toLowerCase())
+      ) return false;
+
+      // 2️⃣ City
+      if (filters.city) {
+        const loc = normalize(c.location);
+        if (!loc.includes(normalize(filters.city))) return false;
+      }
 
 
-    return true;
-  });
-}, [colleges, filters]);
+      // 3️⃣ Course (SAFE)
+      if (filters.course) {
+        const courses = c.rawScraped?.courses;
+        if (!Array.isArray(courses)) return true; // allow if missing
+        const hasCourse = courses.some(co =>
+          co.name?.toLowerCase().includes(filters.course.toLowerCase())
+        );
+        if (!hasCourse) return false;
+      }
+
+      // 4️⃣ Stream (SAFE + normalized)
+      if (filters.stream !== "All") {
+        const s = c.stream;
+
+        // agar stream missing hai to allow karo
+        if (!s) return true;
+
+        const normalizeStream = (v: string) =>
+          v.toLowerCase().replace(/\s+/g, "").replace(/[/.]/g, "");
+
+        const match = Array.isArray(s)
+          ? s.some(v =>
+            normalizeStream(v).includes(normalizeStream(filters.stream))
+          )
+          : normalizeStream(s).includes(normalizeStream(filters.stream));
+
+        if (!match) return false;
+      }
+
+
+      // 5️⃣ College type (SAFE)
+      if (
+        filters.collegeType !== "All" &&
+        c.type &&
+        c.type !== filters.collegeType
+      ) return false;
+
+      // 6️⃣ Rating (SAFE)
+      if (filters.minRating > 0) {
+        const rating = Number(c.rating);
+        if (!rating || rating < filters.minRating) return false;
+      }
+      // 🔹 REGION FILTER (HOME PAGE CARDS)
+      if (filters.region) {
+        const location = c.location?.toLowerCase() || "";
+        if (!location.includes(filters.region.toLowerCase())) {
+          return false;
+        }
+      }
+
+
+      return true;
+    });
+  }, [colleges, filters]);
 
 
 
@@ -420,10 +470,10 @@ if (filters.region) {
 
       {/* ✅ ONLY MOBILE SEARCH + FILTER (UPPER ONE) */}
       <div className="lg:hidden max-w-7xl mx-auto px-4 -mt-3 mb-4">
-      <div className="bg-white rounded-xl border-none shadow-none flex items-center gap-3 px-4 py-3">
-  <input
-    placeholder="Search college, city, course..."
-    className="
+        <div className="bg-white rounded-xl border-none shadow-none flex items-center gap-3 px-4 py-3">
+          <input
+            placeholder="Search college, city, course..."
+            className="
       flex-1 text-sm
       bg-transparent
       border-0
@@ -433,18 +483,18 @@ if (filters.region) {
       focus:outline-none
       shadow-none
     "
-    value={filters.college}
-    onChange={(e) =>
-      setFilters((p) => ({ ...p, college: e.target.value }))
-    }
-  />
-  <button
-    onClick={() => setShowMobileFilters(true)}
-    className="text-sm font-semibold text-[var(--primary-medium)]"
-  >
-    Filters
-  </button>
-</div>
+            value={filters.college}
+            onChange={(e) =>
+              setFilters((p) => ({ ...p, college: e.target.value }))
+            }
+          />
+          <button
+            onClick={() => setShowMobileFilters(true)}
+            className="text-sm font-semibold text-[var(--primary-medium)]"
+          >
+            Filters
+          </button>
+        </div>
 
       </div>
 
@@ -470,6 +520,8 @@ if (filters.region) {
               </h2>
             </div>
 
+
+
             {/* CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 
                 justify-items-center md:justify-items-stretch ">
@@ -479,8 +531,8 @@ if (filters.region) {
                 <CollegeCard
                   key={college.id}
                   college={college}
-              
-                 isCompared={compareList.includes(String(college.id))}
+
+                  isCompared={compareList.includes(String(college.id))}
 
                   onCompareToggle={onCompareToggle}
                   isListingCard
@@ -512,7 +564,7 @@ if (filters.region) {
               filters={filters}
               setFilters={setFilters}
               onClearFilters={clearFilters}
-               colleges={colleges} 
+              colleges={colleges}
               forceShow
             />
 
