@@ -24,7 +24,7 @@ import ErrorBoundary from "./pages/ErrorBoundary";
 import type { College } from "./types";
 
 /* ===== API ===== */
-const API_BASE = "https://studycupsbackend-production.up.railway.app/api";
+const API_BASE = "https://studycupsbackend-wb8p.onrender.com/api";
 
 const App: React.FC = () => {
   const [colleges, setColleges] = useState<College[]>([]);

@@ -36,7 +36,7 @@ const ExamsPage: React.FC = () => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const res = await fetch("https://studycupsbackend-production.up.railway.app/api/exams");
+        const res = await fetch("https://studycupsbackend-wb8p.onrender.com/api/exams");
         const json = await res.json();
         setExams(json.data || []);
       } catch (err) {

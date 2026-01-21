@@ -6,7 +6,7 @@ interface ApplyNowModalProps {
   mode: "apply" | "brochure";
 }
 
-const API_BASE = "https://studycupsbackend-production.up.railway.app";
+const API_BASE = "https://studycupsbackend-wb8p.onrender.com";
 
 const ApplyNowModal: React.FC<ApplyNowModalProps> = ({
   isOpen,

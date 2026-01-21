@@ -206,11 +206,11 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSubmit }) => {
     }
 
     // -------------------------
-    // SEND DATA TO BACKEND (मुख्य परिवर्तन यहाँ है)
+    // SEND DATA TO BACKEND 
     // -------------------------
     try {
       const res = await fetch(
-        "https://studycupsbackend-production.up.railway.app/api/student",
+        "https://studycupsbackend-wb8p.onrender.com/api/student",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

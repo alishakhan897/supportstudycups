@@ -204,8 +204,8 @@ const Footer: React.FC<FooterProps> = ({
           <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-2 text-slate-600">
             <p>© 2026 StudyCups</p>
             <p>
-              Regular Helpdesk: <strong>+91 95997 49001</strong> | Online Helpdesk:{" "}
-              <strong>+91 97178 19001</strong>
+              Regular Helpdesk: <strong>+91 8081269969</strong> | Online Helpdesk:{" "}
+              <strong>+91 7753831118</strong>
             </p>
           </div>
         </div>

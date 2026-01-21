@@ -483,7 +483,7 @@ const closeLightbox = () => {
     const fetchSuggestedColleges = async () => {
       try {
         const res = await fetch(
-          "https://studycupsbackend-production.up.railway.app/api/colleges"
+          "https://studycupsbackend-wb8p.onrender.com/api/colleges"
         );
         const json = await res.json();
 
@@ -559,7 +559,7 @@ const closeLightbox = () => {
       setLoading(true);
       try {
         const res = await fetch(
-          `https://studycupsbackend-production.up.railway.app/api/colleges/${college.id}`
+          `https://studycupsbackend-wb8p.onrender.com/api/colleges/${college.id}`
         );
         const json = await res.json();
         if (json.success) setDetail(json.data);
