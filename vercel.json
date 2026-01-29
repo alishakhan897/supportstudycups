@@ -1,4 +1,20 @@
 {
+  "builds": [
+    {
+      "src": "Portal/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "Portal/dist"
+      }
+    },
+    {
+      "src": "LandingPage/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "LandingPage/dist"
+      }
+    }
+  ],
   "routes": [
     {
       "src": "/landing/(.*)",
