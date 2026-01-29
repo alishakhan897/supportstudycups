@@ -3,26 +3,22 @@
     {
       "src": "Portal/package.json",
       "use": "@vercel/static-build",
-      "config": {
-        "distDir": "Portal/dist"
-      }
+      "config": { "distDir": "Portal/dist" }
     },
     {
       "src": "LandingPage/package.json",
       "use": "@vercel/static-build",
-      "config": {
-        "distDir": "LandingPage/dist"
-      }
+      "config": { "distDir": "LandingPage/dist" }
     }
   ],
   "routes": [
     {
-      "src": "/landing/(.*)",
-      "dest": "/LandingPage/dist/$1"
+      "src": "^/landing(?:/.*)?$",
+      "dest": "/LandingPage/dist/index.html"
     },
     {
-      "src": "/(.*)",
-      "dest": "/Portal/dist/$1"
+      "src": "^(?!/landing).*",
+      "dest": "/Portal/dist/index.html"
     }
   ]
 }
