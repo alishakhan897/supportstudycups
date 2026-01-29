@@ -1,0 +1,7 @@
+{
+  "name": "studycups-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix Portal install && npm --prefix Portal run build && npm --prefix LandingPage install && npm --prefix LandingPage run build"
+  }
+}
