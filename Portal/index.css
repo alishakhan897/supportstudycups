@@ -1,0 +1,192 @@
+
+@import "tailwindcss"; 
+
+:root {
+  --primary-medium: #1e4e79; /* same blue as screenshot */
+  --primary-dark: #0a2a4d;
+}
+
+/* ===============================
+   GLOBAL BORDER NORMALIZATION
+================================ */
+
+/* Default borders ko soft karo */
+.border,
+.border-b,
+.border-t,
+.border-l,
+.border-r {
+  border-color: rgba(15, 43, 90, 0.12) !important;
+}
+
+/* Tabs & navigation ke unwanted dividers hatao */
+[data-tabs] .border-b {
+  border-bottom: none !important;
+}
+
+/* Cards ke liye standard look */
+.card,
+.ui-card {
+  border: 1px solid rgba(15, 43, 90, 0.12);
+  border-radius: 14px;
+  background: #fff;
+}
+
+
+/* Apply Poppins globally */
+* {
+  font-family: 'Poppins', system-ui, Arial, sans-serif;
+} 
+
+
+
+/* Hide scrollbar for college carousel */
+#collegeCarousel::-webkit-scrollbar {
+  height: 0px !important;
+  display: none !important;
+}
+
+#collegeCarousel {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE / Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Edge */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+
+@keyframes logoScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-logoScroll {
+  animation: logoScroll 25s linear infinite;
+}
+.filter-input {
+  @apply w-full px-4 py-2.5 rounded-lg border border-slate-300
+  bg-white text-sm focus:ring-2 focus:ring-[--primary-medium];
+}
+
+.filter-pill {
+  @apply px-4 py-1.5 rounded-full text-sm border border-slate-300
+  bg-white text-slate-700 transition;
+}
+
+.filter-pill.active {
+  @apply bg-[--primary-medium] text-white border-[--primary-medium];
+}
+
+.filter-select {
+  @apply px-4 py-2 border rounded-lg text-sm bg-white;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+      
+  @keyframes scrollX {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  } 
+
+  @keyframes logoScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-logoScroll {
+  animation: logoScroll 20s linear infinite;
+}
+  @keyframes cityAutoScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-cityScroll {
+  animation: cityAutoScroll 25s linear infinite;
+}
+
+
+
+.news-scroll {
+    animation: newsScrollUp 18s linear infinite;
+  }
+
+  @keyframes newsScrollUp {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-90%);
+    }
+  }
+
+  /* pause on hover (professional touch) */
+  .news-scroll:hover {
+    animation-play-state: paused;
+  }
+.news-marquee {
+  animation: newsScroll 25s linear infinite;
+}
+
+@keyframes newsScroll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-60%);
+  }
+}
+/* Hide scrollbar but keep scroll */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}
+
+
+@keyframes shapeEnter {
+  0% {
+    transform: translateX(120px) rotate(55deg) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) rotate(32deg) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shapeEnterBlue {
+  0% {
+    transform: translateX(140px) rotate(-55deg) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) rotate(-28deg) scale(1);
+    opacity: 1;
+  }
+}
+

@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {
+      "src": "/landing/(.*)",
+      "dest": "/LandingPage/dist/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/Portal/dist/$1"
+    }
+  ]
+}
