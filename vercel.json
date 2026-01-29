@@ -1,24 +1,5 @@
 {
-  "builds": [
-    {
-      "src": "Portal/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "Portal/dist" }
-    },
-    {
-      "src": "LandingPage/package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "LandingPage/dist" }
-    }
-  ],
-  "routes": [
-    {
-      "src": "^/landing(?:/.*)?$",
-      "dest": "/LandingPage/dist/index.html"
-    },
-    {
-      "src": "^(?!/landing).*",
-      "dest": "/Portal/dist/index.html"
-    }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
