@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route , Navigate} from "react-router-dom";
+import { Routes, Route , Navigate, useLocation} from "react-router-dom";
 
 /* ===== COMMON COMPONENTS ===== */
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ApplyNowModal from "./components/ApplyNowModal";
 
+import LandingApp from "./LandingPage/LandingApp";
 
 /* ===== PAGES ===== */
 import HomePage from "./pages/HomePage";
@@ -67,6 +68,8 @@ const App: React.FC = () => {
   const [compareList, setCompareList] = useState<string[]>([]);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [applyMode, setApplyMode] = useState<"apply" | "brochure">("apply");
+  const location = useLocation();
+  const isLanding = location.pathname.startsWith("/landing");
 
 
 
@@ -119,20 +122,22 @@ const App: React.FC = () => {
   <>
     {/* ================= HEADER (ALWAYS INSTANT) ================= */} 
 
-    <Header
-      onOpenApplyNow={() => {
-        setApplyMode("apply");
-        setApplyModalOpen(true);
-      }} 
-       colleges={colleges}
-       exams={exams}
-    />
+   {!isLanding && (
+        <Header
+          onOpenApplyNow={() => {
+            setApplyMode("apply");
+            setApplyModalOpen(true);
+          }}
+          colleges={colleges}
+          exams={exams}
+        />
+      )}
 
     {/* ================= ROUTES (NEVER BLOCKED BY LOADING) ================= */} 
   
     <Routes> 
      
-
+ <Route path="/landing" element={<LandingApp />} />
       <Route
         path="/"
         element={
@@ -312,7 +317,8 @@ const App: React.FC = () => {
             compareList={compareList}
           />
         }
-      />
+      /> 
+      
        <Route path="*" element={<ErrorBoundary />} /> 
     </Routes>
 
@@ -324,7 +330,7 @@ const App: React.FC = () => {
     />
 
     {/* ================= FOOTER ================= */}
-   <Footer exams={exams} colleges={colleges} />
+   {!isLanding && <Footer exams={exams} colleges={colleges} />}
 
   </>
 ); 

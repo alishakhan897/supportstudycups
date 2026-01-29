@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { College } from '../types';
+import './Landing.css'
 
 interface CollegeCardProps {
   college: College;
@@ -14,7 +15,7 @@ const CollegeCard: React.FC<CollegeCardProps> = ({ college, onApply }) => {
   const placeholderLogo = 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=120&h=120';
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-3 sm:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 group flex flex-col h-full overflow-hidden">
+    <div className="landing-root bg-white rounded-xl shadow-sm border border-slate-200 p-3 sm:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 group flex flex-col h-full overflow-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 mb-3">
         <div className="relative flex-shrink-0">
           <img 

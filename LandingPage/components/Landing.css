@@ -1,0 +1,25 @@
+/* 🔥 Landing page font isolation */
+.landing-root {
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Reset aggressive tailwind font weights */
+.landing-root h1,
+.landing-root h2,
+.landing-root h3,
+.landing-root h4,
+.landing-root h5,
+.landing-root h6 {
+  font-weight: 700 !important; /* clean bold */
+}
+
+.landing-root p,
+.landing-root span,
+.landing-root div {
+  font-weight: 400;
+}
+
+/* Only allow bold where really needed */
+.landing-root .fw-bold {
+  font-weight: 600 !important;
+}

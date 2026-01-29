@@ -10,7 +10,7 @@ const FAQSection: React.FC<FAQProps> = ({ items }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4">
+    <div className="landing-root max-w-3xl mx-auto space-y-4">
       {items.map((item, index) => (
         <div key={index} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
           <button

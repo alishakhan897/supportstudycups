@@ -77,12 +77,13 @@ const LeadForm: React.FC<{ id?: string; className?: string }> = ({ id, className
   return (
     <div
       id={id}
-      className={`bg-white rounded-lg shadow-2xl p-6 sm:p-8 border border-slate-700 ${className}`}
+      className={`landing-root bg-white rounded-lg shadow-2xl p-6 sm:p-8 border border-slate-700 ${className}`}
     >
       <div className="mb-6 text-center">
-        <h3 className="text-[#004a8c] text-xl sm:text-2xl font-black">
-          Apply Now For Top B-Schools
-        </h3>
+     <h3 className="text-blue-900 text-lg sm:text-[26px] font-semibold whitespace-nowrap">
+  Apply Now For Top B-Schools
+</h3>
+
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

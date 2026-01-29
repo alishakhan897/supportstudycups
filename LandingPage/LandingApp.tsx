@@ -8,6 +8,7 @@ import StickyFooter from './components/StickyFooter';
 import PopupForm from './components/PopupForm';
 import SuccessCarousel from './components/SuccessCarousel';
 import { COLLEGES, TESTIMONIALS, PARTNERS, FAQS } from './constants';
+import './components/Landing.css';
 
 const App: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -32,7 +33,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col pb-24 md:pb-32 selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden bg-white">
+    <div className="  min-h-screen flex flex-col pb-24 md:pb-32 selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden bg-white">
       <Ticker />
       <PopupForm isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} />
 
