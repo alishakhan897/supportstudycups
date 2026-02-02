@@ -1,16 +1,24 @@
+import { Helmet } from "react-helmet-async";
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './LandingApp';
+const LandingPage = () => {
+  return (
+    <>
+      <Helmet>
+        <title>Best College Admission Consultants in India | StudyCups</title>
+        <meta
+          name="description"
+          content="StudyCups helps students choose the best colleges in India with expert admission guidance."
+        />
+      </Helmet>
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+      <h1>India’s Trusted College Admission & Career Guidance Platform</h1>
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+      <p>
+        StudyCups students ko best colleges choose karne me help karta
+        hai with admission guidance, eligibility support aur counseling.
+      </p>
+    </>
+  );
+};
+
+export default LandingPage;

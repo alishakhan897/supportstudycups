@@ -7,6 +7,8 @@ import FAQSection from './components/FAQSection';
 import StickyFooter from './components/StickyFooter';
 import PopupForm from './components/PopupForm';
 import SuccessCarousel from './components/SuccessCarousel';
+import { Helmet } from "react-helmet-async";
+
 import { COLLEGES, TESTIMONIALS, PARTNERS, FAQS } from './constants';
 import './components/Landing.css';
 
@@ -32,8 +34,17 @@ const App: React.FC = () => {
     document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  return (
-    <div className="  min-h-screen flex flex-col pb-24 md:pb-32 selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden bg-white">
+  return (  
+    <>
+    <Helmet>
+      <title>Best MBA Admission Consultants in India | StudyCups</title>
+      <meta
+        name="description"
+        content="StudyCups helps students get admission in top MBA and PGDM colleges in India with expert counseling, eligibility checks, and scholarship support."
+      />
+    </Helmet>
+
+    <div className="sr-only min-h-screen flex flex-col pb-24 md:pb-32 selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden bg-white">
       <Ticker />
       <PopupForm isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} />
 
@@ -64,10 +75,10 @@ active:scale-95 transition-all"
           {/* Headline Area - Improved Leading and Kerning to prevent clipping */}
        <div className="text-center mb-6 sm:mb-8 px-4">
 
-         <h1 className="text-[#3b5998] text-2xl sm:text-5xl font-[900] tracking-tight leading-tight mb-2">
+         <h2 className="text-[#3b5998] text-2xl sm:text-5xl font-[900] tracking-tight leading-tight mb-2">
 
               MBA / PGDM
-            </h1>
+            </h2>
             <p className="text-slate-800 text-lg sm:text-3xl lg:text-4xl font-bold tracking-tight opacity-90 mt-0">
               Admissions Open <span className="text-orange-600">2026-28</span>
             </p>
@@ -298,7 +309,8 @@ active:scale-95 transition-all"
       </section>
 
       <StickyFooter />
-    </div>
+    </div> 
+    </>
   );
 };
 
