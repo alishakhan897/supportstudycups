@@ -6,7 +6,7 @@ import { lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import {  toCourseSlug } from "./Seo"
 import { Helmet } from "react-helmet-async";
-
+import SuccessCarousel from "@/LandingPage/components/SuccessCarousel";
 
 import {
 
@@ -17,6 +17,7 @@ import {
 import { useOnScreen } from "../hooks/useOnScreen";
 import ContactForm from "../components/ContactForm";
 import { useLocation } from "react-router-dom";
+import { TESTIMONIALS } from "@/LandingPage/constants";
 
 
 
@@ -265,6 +266,11 @@ const [heroCity, setHeroCity] = useState("");
     city: "",
     course: "",
   });
+
+  useEffect(() => {
+  console.log("TESTIMONIALS =>", TESTIMONIALS);
+}, []);
+
 
   const [query, setQuery] = useState("");
   const [activeCity, setActiveCity] = useState<string | null>(null);
@@ -2748,86 +2754,24 @@ const HERO_TAGS = [
           </table>
         </div>
       </div>
-
+ 
       {/* -------------------------------------------------- */}
       {/* OPTIONAL: FAQ + BLOG + CONTACT (keep functionality) */}
       {/* (You can remove these if you strictly want home to  */}
       {/* end at the gradient footer below.)                 */}
       {/* -------------------------------------------------- */} 
 
-      <section className="py-12 bg-[#f4f6fb]">
-        <div className="max-w-6xl mx-auto px-6">
-
-          <h2 className="text-lg md:text-xl font-semibold text-[#0A225A] mb-6">
-            Student Reviews & Testimonials
-          </h2>
-
-          {/* MOBILE: Horizontal scroll */}
-          <div
-            className="
-        flex md:hidden
-        gap-4 overflow-x-auto scroll-smooth
-        snap-x snap-mandatory
-        pb-3
-        scrollbar-hide
-      "
-          >
-            {TESTIMONIALS_DATA.map((t, i) => (
-              <div
-                key={i}
-                className="
-            min-w-[80%] snap-start
-            bg-white rounded-2xl shadow-md border border-gray-200
-            p-5 flex flex-col gap-3
-          "
-              >
-                <div className="flex items-center gap-3">
-                  <img src={t.avatarUrl} className="h-10 w-10 rounded-full object-cover" />
-                  <div>
-                    <p className="font-semibold text-sm text-slate-900">{t.name}</p>
-                    <p className="text-[11px] text-slate-500">{t.college}</p>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-600">
-                  “{t.quote}”
-                </p>
-
-                <p className="text-[11px] text-yellow-500">★★★★★</p>
-              </div>
-            ))}
+   
+          <section className="py-24 sm:py-32 px-4 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight">Our <span className="text-orange-600">Alumni</span> Success</h2>
+            <p className="text-slate-500 mt-5 text-base sm:text-xl">Students from our partner schools now at top global firms.</p>
           </div>
-
-          {/* DESKTOP: 3-column grid */}
-          <div className="hidden md:grid md:grid-cols-3 gap-6 mt-4">
-            {TESTIMONIALS_DATA.map((t, i) => (
-              <div
-                key={i}
-                className="
-            bg-white rounded-2xl shadow-md border border-gray-200
-            p-5 flex flex-col h-full
-          "
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <img src={t.avatarUrl} className="h-10 w-10 rounded-full object-cover" />
-                  <div>
-                    <p className="font-semibold text-sm text-slate-900">{t.name}</p>
-                    <p className="text-[11px] text-slate-500">{t.college}</p>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-600 flex-grow">
-                  “{t.quote}”
-                </p>
-
-                <p className="text-[11px] text-yellow-500 mt-3">★★★★★</p>
-              </div>
-            ))}
-          </div>
-
+          <SuccessCarousel testimonials={TESTIMONIALS} />
         </div>
       </section>
-
+   
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">

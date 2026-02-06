@@ -5,9 +5,7 @@ import { Routes, Route , Navigate, useLocation} from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ApplyNowModal from "./components/ApplyNowModal";
-
 import LandingApp from "./LandingPage/LandingApp";
-
 /* ===== PAGES ===== */
 import HomePage from "./pages/HomePage";
 import ListingPage from "./pages/ListingPage";

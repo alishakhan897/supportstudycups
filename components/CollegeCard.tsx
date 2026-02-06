@@ -64,7 +64,11 @@ const rankingText =
 
 
   return (
-    <div
+    <div onClick={() =>
+  navigate(
+    `/university/${college.id}-${slug}`
+  )
+}
       className="
         bg-white
         rounded-xl 
