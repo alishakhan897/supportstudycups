@@ -67,7 +67,7 @@ const Newsletter = () => {
                 <option>Design</option>
               </select>
 
-              <button className="bg-[#FF7A66] hover:bg-[#ff6650] transition text-white font-semibold rounded-xl h-12">
+              <button className="bg-green-500 transition text-white font-semibold rounded-xl h-12">
                 Submit
               </button>
             </div>
