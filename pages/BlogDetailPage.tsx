@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import EditorRenderer from "./EditorRenderer";
 
 const BlogDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [blog, setBlog] = useState<any>(null);
+  const [relatedBlogs, setRelatedBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,19 +15,28 @@ const BlogDetailPage: React.FC = () => {
 
     const fetchBlog = async () => {
       try {
-        const res = await fetch(
-          `https://studycupsbackend-wb8p.onrender.com/api/blogs/${id}`
-        );
+        const res = await fetch(`http://localhost:5000/api/blogs/${id}`);
         const json = await res.json();
         setBlog(json.data);
       } catch (err) {
         console.error("Blog fetch error", err);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchBlog();
+    const fetchRelated = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/blogs");
+        const json = await res.json();
+        const filtered = json.data.filter((b: any) => b._id !== id);
+        setRelatedBlogs(filtered.slice(0, 5));
+      } catch (err) {
+        console.error("Related blogs error", err);
+      }
+    };
+
+    Promise.all([fetchBlog(), fetchRelated()]).finally(() =>
+      setLoading(false)
+    );
   }, [id]);
 
   if (loading) {
@@ -48,45 +59,82 @@ const BlogDetailPage: React.FC = () => {
 
   return (
     <div className="bg-[#f5f7fb] min-h-screen pt-28 pb-20">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        {/* BACK */}
-        <button
-          onClick={() => navigate("/blog")}
-          className="text-sm text-blue-600 font-semibold mb-6"
-        >
-          ← Back to Blogs
-        </button>
+        {/* ================= LEFT: BLOG CONTENT ================= */}
+        <div className="lg:col-span-2">
+          <button
+            onClick={() => navigate("/blog")}
+            className="text-sm text-blue-600 font-semibold mb-6"
+          >
+            ← Back to Blogs
+          </button>
 
-        {/* IMAGE */}
-        <img
-          src={blog.imageUrl}
-          alt={blog.title}
-          className="w-full h-[420px] object-cover rounded-2xl shadow"
-        />
+          <img
+            src={blog.imageUrl}
+            alt={blog.title}
+            className="w-full h-[420px] object-cover rounded-2xl shadow"
+          />
 
-        {/* META */}
-        <div className="mt-6">
-          <span className="text-xs font-semibold text-blue-600">
-            {blog.category}
-          </span>
+          <div className="mt-6">
+            <span className="text-xs font-semibold text-blue-600">
+              {blog.category}
+            </span>
 
-          <h1 className="text-3xl font-extrabold text-slate-900 mt-2">
-            {blog.title}
-          </h1>
+            <h1 className="text-3xl font-extrabold text-slate-900 mt-2">
+              {blog.title}
+            </h1>
 
-          <p className="text-sm text-slate-500 mt-2">
-            By {blog.author} •{" "}
-            {new Date(blog.date || blog.createdAt).toLocaleDateString("en-IN")}
-          </p>
+            <p className="text-sm text-slate-500 mt-2">
+              By {blog.author} •{" "}
+              {new Date(blog.date || blog.createdAt).toLocaleDateString("en-IN")}
+            </p>
+          </div>
+
+          <div className="mt-8 bg-white p-6 rounded-2xl shadow-sm">
+            <EditorRenderer data={blog.content} />
+          </div>
         </div>
 
-        {/* CONTENT */}
-        <div className="mt-8 bg-white p-6 rounded-2xl shadow-sm">
-          <p className="text-slate-700 leading-relaxed whitespace-pre-line">
-            {blog.content}
-          </p>
-        </div>
+        {/* ================= RIGHT: SIDEBAR ================= */}
+        <aside className="space-y-6">
+          <div className="bg-white rounded-2xl shadow p-5">
+            <h3 className="font-bold text-lg mb-4">Related Blogs</h3>
+
+            {relatedBlogs.map((rb) => (
+              <div
+                key={rb._id}
+                onClick={() => navigate(`/blog/${rb._id}`)}
+                className="flex gap-3 mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded"
+              >
+                <img
+                  src={rb.imageUrl}
+                  alt={rb.title}
+                  className="w-20 h-16 object-cover rounded"
+                />
+                <div>
+                  <p className="text-sm font-semibold line-clamp-2">
+                    {rb.title}
+                  </p>
+                  <span className="text-xs text-gray-500">
+                    {rb.category}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Optional box */}
+          <div className="bg-blue-600 text-white rounded-2xl p-5">
+            <h4 className="font-bold text-lg">Need Guidance?</h4>
+            <p className="text-sm mt-2">
+              Get expert help for colleges, exams & admissions.
+            </p>
+            <button className="mt-4 bg-white text-blue-600 px-4 py-2 rounded font-semibold">
+              Apply Now
+            </button>
+          </div>
+        </aside>
 
       </div>
     </div>
