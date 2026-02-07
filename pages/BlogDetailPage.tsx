@@ -15,7 +15,7 @@ const BlogDetailPage: React.FC = () => {
 
     const fetchBlog = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/blogs/${id}`);
+        const res = await fetch(`https://studycupsbackend-wb8p.onrender.com/api/blogs/${id}`);
         const json = await res.json();
         setBlog(json.data);
       } catch (err) {
@@ -25,7 +25,7 @@ const BlogDetailPage: React.FC = () => {
 
     const fetchRelated = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/blogs");
+        const res = await fetch("https://studycupsbackend-wb8p.onrender.com/api/blogs");
         const json = await res.json();
         const filtered = json.data.filter((b: any) => b._id !== id);
         setRelatedBlogs(filtered.slice(0, 5));
